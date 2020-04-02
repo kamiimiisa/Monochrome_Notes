@@ -12,7 +12,7 @@ public class MainManager : MonoBehaviour
     private float carrentGameTime = 0;
 
     private float deltaTime;
-    private float noteSpeed = 1;
+    private float noteSpeed = 6;
 
     private string musicName = "tutorial"; //テストで入れてるけどほんとは曲選択画面からもらう
 
@@ -32,6 +32,8 @@ public class MainManager : MonoBehaviour
         {LineNum.Line3, 1.25f},
         {LineNum.Line4, 3.75f}
     };
+
+    private static readonly Dictionary<LineNum, List<MyNote>> NOTE_LINE_LIST = new Dictionary<LineNum, List<MyNote>>();
 
     [SerializeField] private List<AudioClip> bgmList;
     [SerializeField] private List<AudioClip> seList;
@@ -68,7 +70,6 @@ public class MainManager : MonoBehaviour
             //carrentTime = ノーツの最短間隔[60f / (BPM * LPB)] * ノーツの位置
             float carrentTime = 60f / (editData.BPM * note.notes[0].LPB) * note.notes[i].num;
             NOTES_LIST.Add(new MyNote.NotePos(carrentTime, (LineNum)Enum.ToObject(typeof(LineNum), note.notes[i].block)));
-            //Debug.Log(NOTES_LIST[i].notesTimeg.ToString() + NOTES_LIST[i].lineNum);
         }
 
         Initialize();
@@ -88,10 +89,24 @@ public class MainManager : MonoBehaviour
             musicStart = true;
         }
 
+        foreach (var notes in NOTE_LINE_LIST.Values)
+        {
+            foreach (var note in notes)
+            {
+                var pos = note.transform.position;
+                pos.y = judgeLineObj.transform.position.y + (note.notePos.notesTimeg - audioSource.time) * noteSpeed;
+                note.transform.position = pos;
+            }
+        }
+
     }
 
     void Initialize()
     {
+        foreach (LineNum line in System.Enum.GetValues(typeof(LineNum))) {
+            NOTE_LINE_LIST.Add(line, new List<MyNote>());
+        }
+
         foreach (var data in NOTES_LIST)
         {
             var obj = Instantiate(noteObj, transform);
@@ -101,6 +116,8 @@ public class MainManager : MonoBehaviour
             pos.x = LINE_POSITION[note.notePos.lineNum];
             pos.y = judgeLineObj.transform.position.y + note.notePos.notesTimeg * noteSpeed;
             note.transform.position = pos;
+
+            NOTE_LINE_LIST[note.notePos.lineNum].Add(note);
         }
 
     }
