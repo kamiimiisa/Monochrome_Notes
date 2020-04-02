@@ -296,6 +296,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noteObj: {fileID: 1179597283970956, guid: 5852cafbe9d518c41a7448f58ae57a0e, type: 2}
   judgeLineObj: {fileID: 603646873}
+  bgmList:
+  - {fileID: 8300000, guid: 4a485fd175f090a41a5c4dbc5670f94a, type: 3}
+  seList: []
 --- !u!4 &819850954
 Transform:
   m_ObjectHideFlags: 0
