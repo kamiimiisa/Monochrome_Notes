@@ -1,6 +1,6 @@
 ﻿namespace Config
 {
-    public enum LineNum
+    public enum Line
     {
         Line1,
         Line2,

@@ -10,10 +10,10 @@ namespace Monochrome_Notes
         public struct NotePos
         {
             public float notesTimeg;
-            public LineNum lineNum;
+            public Line lineNum;
             public NoteType noteType;
 
-            public NotePos(float _noteTimeg, LineNum _lineNum, NoteType _noteType){
+            public NotePos(float _noteTimeg, Line _lineNum, NoteType _noteType){
                 notesTimeg = _noteTimeg;
                 lineNum = _lineNum;
                 noteType = _noteType;
