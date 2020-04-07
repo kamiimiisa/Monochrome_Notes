@@ -66,7 +66,7 @@ public class TitleManager : MonoBehaviour
         {
             icon[i].SetActive(false);
         }
-        icon[(int)System.Enum.ToObject(typeof(int), _select)].SetActive(true);
+        icon[(int)_select].SetActive(true);
     }
 }
 
