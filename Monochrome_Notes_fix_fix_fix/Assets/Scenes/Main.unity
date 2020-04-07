@@ -392,6 +392,7 @@ MonoBehaviour:
   missText: {fileID: 1925233699}
   bgmList:
   - {fileID: 8300000, guid: 4a485fd175f090a41a5c4dbc5670f94a, type: 3}
+  - {fileID: 8300000, guid: 1ae532a59838cf54c9b932401b508f49, type: 3}
   seList: []
 --- !u!4 &819850954
 Transform:

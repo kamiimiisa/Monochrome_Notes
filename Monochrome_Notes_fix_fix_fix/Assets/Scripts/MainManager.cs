@@ -3,44 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using NoteEditor.DTO;
-using NoteEditor.Notes;
 using Config;
 using Monochrome_Notes;
 
 public class MainManager : MonoBehaviour
 {
     private float carrentGameTime = 0;
-
     private float deltaTime;
     private float noteSpeed = 10;
-
-    private int score;
-    private int parfectNum;
-    private int greatNum;
-    private int missNum;
-    private int combo;
-
-
-
-    private string musicName = "tutorial"; //テストで入れてるけどほんとは曲選択画面からもらう
-
+    private string musicName = "Under-the-Moonlight"; //テストで入れてるけどほんとは曲選択画面からもらう
     private bool musicStart = false;
 
     [SerializeField] private GameObject noteObj;
     [SerializeField] private GameObject judgeLineObj;
 
+    #region Score関係の宣言
     [SerializeField] private Text scoreText;
+    private int score;
     [SerializeField] private Text comboText;
+    private int combo;
     [SerializeField] private Text pafectText;
+    private int parfectNum;
     [SerializeField] private Text greatText;
+    private int greatNum;
     [SerializeField] private Text missText;
-
+    private int missNum;    
+    #endregion 
 
     private GameMaster gameMaster;
     private MusicDTO.EditData editData;
     private MusicDTO.Note note;
 
-    private static List<MyNote.Note> NOTES_LIST = new List<MyNote.Note>();
+    private static List<Note.NotePos> NOTES_LIST = new List<Note.NotePos>();
     private static readonly Dictionary<LineNum, float> LINE_POSITION = new Dictionary<LineNum, float>(){
         {LineNum.Line1, -3.75f},
         {LineNum.Line2, -1.25f},
@@ -48,7 +42,7 @@ public class MainManager : MonoBehaviour
         {LineNum.Line4, 3.75f}
     };
 
-    private static readonly Dictionary<LineNum, List<MyNote>> NOTE_LINE_LIST = new Dictionary<LineNum, List<MyNote>>();
+    private static readonly Dictionary<LineNum, List<Note>> NOTE_LINE_LIST = new Dictionary<LineNum, List<Note>>();
 
     private static readonly Dictionary<LineNum, int> CARRENT_NOTE_LINE_LIST = new Dictionary<LineNum, int>();
 
@@ -68,8 +62,6 @@ public class MainManager : MonoBehaviour
     [SerializeField] private List<AudioClip> seList;
     private AudioSource audioSource;
     private int musicNum = 0;
-
-    float carrentTimeTest = 0f;
 
     // Use this for initialization
     void Start()
@@ -98,7 +90,7 @@ public class MainManager : MonoBehaviour
         {
             //carrentTime = ノーツの最短間隔[60f / (BPM * LPB)] * ノーツの位置
             float carrentTime = 60f / (editData.BPM * note.notes[0].LPB) * note.notes[i].num;
-            NOTES_LIST.Add(new MyNote.Note(carrentTime, (LineNum)System.Enum.ToObject(typeof(LineNum), note.notes[i].block), (NoteType)System.Enum.ToObject(typeof(NoteType), note.notes[i].type)));
+            NOTES_LIST.Add(new Note.NotePos(carrentTime, (LineNum)System.Enum.ToObject(typeof(LineNum), note.notes[i].block), (NoteType)System.Enum.ToObject(typeof(NoteType), note.notes[i].type)));
         }
 
         Initialize();
@@ -181,19 +173,25 @@ public class MainManager : MonoBehaviour
 
         foreach (LineNum line in System.Enum.GetValues(typeof(LineNum)))
         {
-            NOTE_LINE_LIST.Add(line, new List<MyNote>());
+            NOTE_LINE_LIST.Add(line, new List<Note>());
             CARRENT_NOTE_LINE_LIST.Add(line, -1);
         }
 
         foreach (var data in NOTES_LIST)
         {
             var obj = Instantiate(noteObj, transform);
-            var note = obj.GetComponent<MyNote>();
+            var note = obj.GetComponent<Note>();
             note.Intialize(data);
             var pos = obj.transform.position;
             pos.x = LINE_POSITION[note.notePos.lineNum];
             pos.y = judgeLineObj.transform.position.y + note.notePos.notesTimeg * noteSpeed;
             note.transform.position = pos;
+
+            if (note.notePos.noteType == NoteType.Hold)
+            {
+
+            }
+
 
             NOTE_LINE_LIST[note.notePos.lineNum].Add(note);
             if (CARRENT_NOTE_LINE_LIST[note.notePos.lineNum] < 0)
