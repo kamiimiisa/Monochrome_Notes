@@ -10,8 +10,8 @@ public class MainManager : MonoBehaviour
 {
     private float carrentGameTime = 0;
     private float deltaTime;
-    private float noteSpeed = 10;
-    private string musicName = "tutorial"; //テストで入れてるけどほんとは曲選択画面からもらう
+    private float noteSpeed = 15;
+    private string musicName = "Under-the-Moonlight"; //テストで入れてるけどほんとは曲選択画面からもらう
     private bool musicStart = false;
 
     [SerializeField] private GameObject noteObj;
@@ -150,20 +150,24 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        if (Input.GetButton("Button1"))
+        if (Input.GetButtonDown("Button1"))
         {
+            audioSource.PlayOneShot(seList[0]);
             JudgeNotes(Line.Line1);
         }
-        if (Input.GetButton("Button2"))
+        if (Input.GetButtonDown("Button2"))
         {
+            audioSource.PlayOneShot(seList[0]);
             JudgeNotes(Line.Line2);
         }
-        if (Input.GetButton("Button3"))
+        if (Input.GetButtonDown("Button3"))
         {
+            audioSource.PlayOneShot(seList[0]);
             JudgeNotes(Line.Line3);
         }
-        if (Input.GetButton("Button4"))
+        if (Input.GetButtonDown("Button4"))
         {
+            audioSource.PlayOneShot(seList[0]);
             JudgeNotes(Line.Line4);
         }
 

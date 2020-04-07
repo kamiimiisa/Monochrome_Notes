@@ -18,4 +18,9 @@
         Graet,
         Miss
     }
+
+    public enum Sound { 
+        BGM,
+        SE
+    }
 }
