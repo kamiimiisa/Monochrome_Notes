@@ -7,23 +7,24 @@ namespace Monochrome_Notes
 {
     public class MyNote : MonoBehaviour
     {
-        public struct NotePos
+        public struct Note
         {
             public float notesTimeg;
             public LineNum lineNum;
+            public NoteType noteType;
 
-            public NotePos(float _noteTimeg, Config.LineNum _lineNum)
-            {
+            public Note(float _noteTimeg, LineNum _lineNum, NoteType _noteType){
                 notesTimeg = _noteTimeg;
                 lineNum = _lineNum;
+                noteType = _noteType;
             }
         }
 
-        public NotePos notePos { get; private set; }
+        public Note notePos { get; private set; }
 
-        public void Intialize(NotePos _notePos)
+        public void Intialize(Note _note)
         {
-            notePos = _notePos;
+            notePos = _note;
         }
     }
 }

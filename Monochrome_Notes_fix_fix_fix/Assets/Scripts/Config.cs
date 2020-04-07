@@ -8,10 +8,14 @@
         Line4
     }
 
+    public enum NoteType { 
+        Touch,
+        Hold
+    }
+
     public enum Judge { 
         Pafect,
         Graet,
-        Safe,
-        Miis
+        Miss
     }
 }
