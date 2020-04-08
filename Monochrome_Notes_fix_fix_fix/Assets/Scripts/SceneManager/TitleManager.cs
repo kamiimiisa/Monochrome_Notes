@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class TitleManager : MonoBehaviour
     }
     private Select select = Select.Start;
     [SerializeField] GameObject[] icon = new GameObject[3];
+    string _sceneName;
 
     // Use this for initialization
     void Start()
@@ -21,20 +23,21 @@ public class TitleManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         switch (select)
         {
             case Select.Start:
                 DownSelect(Select.Tutorial);
-                //ここにシーン遷移の処理
+                loadScene("MusicSelect");
                 break;
             case Select.Tutorial:
                 UpSelect(Select.Start);
                 DownSelect(Select.Exit);
-                //ここにシーン遷移の処理
+                loadScene("Tutorial");
                 break;
             case Select.Exit:
                 UpSelect(Select.Tutorial);
-                //ここにシーン遷移の処理
+                loadScene("Exit");
                 break;
             default:
                 Debug.Log("バグです");
@@ -67,6 +70,19 @@ public class TitleManager : MonoBehaviour
             icon[i].SetActive(false);
         }
         icon[(int)_select].SetActive(true);
+    }
+
+    void loadScene(string _sceneName)
+    {
+        if(Input.GetKeyDown(KeyCode.Space) && _sceneName != "Exit")
+        {
+            SceneManager.LoadScene(_sceneName);
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space) && _sceneName == "Exit")
+        {
+            Application.Quit();
+        }
     }
 }
 
