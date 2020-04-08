@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+<<<<<<< Updated upstream
 public class TitleManager : MonoBehaviour
 {
 
@@ -84,5 +85,82 @@ public class TitleManager : MonoBehaviour
             Application.Quit();
         }
     }
+=======
+public class TitleManager : MonoBehaviour {
+
+	[SerializeField] GameObject[] cursor;
+	enum Select
+	{
+		start,
+		tutorial,
+		exit
+	}
+	Select select = Select.start;
+
+	// Use this for initialization
+	void Start () {
+		
+	}
+	
+	// Update is called once per frame
+	void Update () {
+
+		//十字キーでのカーソル移動
+		switch (select)
+		{
+			case Select.start:
+				DownSelect(Select.tutorial);
+
+
+				break;
+			case Select.tutorial:
+				UpSelect(Select.start);
+				DownSelect(Select.exit);
+
+
+
+				break;
+			case Select.exit:
+				UpSelect(Select.tutorial);
+
+
+
+				break;
+			default:
+				Debug.Log("バグです");
+				break;
+		}
+
+	}
+
+	void UpSelect(Select _select)
+	{
+		if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			select = _select;
+		}
+		Visible(_select);
+
+	}
+
+	void DownSelect(Select _select) {
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			select = _select;
+		}
+		Visible(_select);
+	}
+
+	void Visible(Select _select)
+	{
+		for (int i = 0; i <cursor.Length; i++)
+		{
+			cursor[i].SetActive(false);
+		}
+		cursor[(int)System.Enum.ToObject(typeof(int), _select)].SetActive(true);
+	}
+
+
+>>>>>>> Stashed changes
 }
 
