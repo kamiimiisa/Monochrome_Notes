@@ -441,7 +441,11 @@ GameObject:
   - component: {fileID: 868583787}
   - component: {fileID: 868583786}
   m_Layer: 5
-  m_Name: Image (1)
+<<<<<<< Updated upstream
+  m_Name: Tutorial
+=======
+  m_Name: tutorial
+>>>>>>> Stashed changes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -583,12 +587,16 @@ GameObject:
   - component: {fileID: 1210589744}
   - component: {fileID: 1210589743}
   m_Layer: 5
-  m_Name: Image
+<<<<<<< Updated upstream
+  m_Name: Start
+=======
+  m_Name: start
+>>>>>>> Stashed changes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1210589742
 RectTransform:
   m_ObjectHideFlags: 0
@@ -725,7 +733,11 @@ GameObject:
   - component: {fileID: 1468782298}
   - component: {fileID: 1468782297}
   m_Layer: 5
-  m_Name: Image (2)
+<<<<<<< Updated upstream
+  m_Name: Exit
+=======
+  m_Name: exit
+>>>>>>> Stashed changes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -782,6 +794,81 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1468782295}
+<<<<<<< Updated upstream
+--- !u!1 &1650307750
+=======
+--- !u!1 &1677190677
+>>>>>>> Stashed changes
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+<<<<<<< Updated upstream
+  - component: {fileID: 1650307752}
+  - component: {fileID: 1650307751}
+  m_Layer: 0
+  m_Name: SceneManager
+=======
+  - component: {fileID: 1677190679}
+  - component: {fileID: 1677190678}
+  m_Layer: 0
+  m_Name: TitleM
+>>>>>>> Stashed changes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+<<<<<<< Updated upstream
+--- !u!114 &1650307751
+=======
+--- !u!114 &1677190678
+>>>>>>> Stashed changes
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+<<<<<<< Updated upstream
+  m_GameObject: {fileID: 1650307750}
+=======
+  m_GameObject: {fileID: 1677190677}
+>>>>>>> Stashed changes
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fdd25e5581cea84592ba545efaf62cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
+  icon:
+  - {fileID: 1210589741}
+  - {fileID: 868583784}
+  - {fileID: 1468782295}
+--- !u!4 &1650307752
+=======
+  cursor:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!4 &1677190679
+>>>>>>> Stashed changes
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+<<<<<<< Updated upstream
+  m_GameObject: {fileID: 1650307750}
+=======
+  m_GameObject: {fileID: 1677190677}
+>>>>>>> Stashed changes
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1824253785
 GameObject:
   m_ObjectHideFlags: 0
