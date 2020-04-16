@@ -6,18 +6,25 @@ using NoteEditor.DTO;
 using Config;
 using Monochrome_Notes;
 
-public class MainManager : MonoBehaviour
-{
+public class MainManager : MonoBehaviour {
     private float carrentGameTime = 0;
     private float deltaTime;
-    private float noteSpeed = 15;
-    private string musicName = "Under-the-Moonlight"; //テストで入れてるけどほんとは曲選択画面からもらう
+    [SerializeField][Range(0,20)]private int noteSpeed = 10;
+    private static readonly float DELAY_TIME = 5f;
+    private float offset = 0;
+    private string musicName = "Angel-learned"; //テストで入れてるけどほんとは曲選択画面からもらう
     private bool musicStart = false;
 
-    [SerializeField] private GameObject noteObj;
-    [SerializeField] private GameObject judgeLineObj;
+    private bool[] holdFlg = { false, false, false, false };
+    private float[] holdTime = { 0, 0, 0, 0 };
+    private float[] musicTime = { 0, 0, 0, 0 };
+    private Note[] endHoldNote = new Note[4];
 
-    #region Score関係の宣言
+    [SerializeField] private GameObject noteObj;
+    [SerializeField] private GameObject holdNoteObj;
+    [SerializeField] private GameObject judgeLineObj;
+    [SerializeField] private GameObject laneObj;
+    
     [SerializeField] private Text scoreText;
     private int score;
     [SerializeField] private Text comboText;
@@ -28,14 +35,14 @@ public class MainManager : MonoBehaviour
     private int greatNum;
     [SerializeField] private Text missText;
     private int missNum;
-    #endregion
+
 
     private GameMaster gameMaster;
     private MusicDTO.EditData editData;
     /// <summary>
     /// Jsonから復元されたMusicDTO.Noteクラス
     /// </summary>
-    private MusicDTO.Note note;
+    private MusicDTO.Note musicNote;
 
     /// <summary>
     /// 全てのノーツの情報を持つリスト
@@ -48,42 +55,55 @@ public class MainManager : MonoBehaviour
     /// </summary>
     private static readonly Dictionary<Line, List<Note>> LINE_NOTE_LIST = new Dictionary<Line, List<Note>>();
 
+
+    /// <summary>
+    /// ライン毎にホールドノーツを持つDictionary
+    /// </summary>
+    private static readonly Dictionary<Line, List<Note>> LINE_HOLD_NOTE_LIST = new Dictionary<Line, List<Note>>();
+       
     /// <summary>
     /// ライン毎にノーツが残っているかを調べるindex
     /// </summary>
     private static readonly Dictionary<Line, int> CURRENT_LINE_NOTE_LIST = new Dictionary<Line, int>();
 
-    private static readonly Dictionary<Line, float> LINE_POSITION = new Dictionary<Line, float>(){
-        {Line.Line1, -3.75f},
-        {Line.Line2, -1.25f},
-        {Line.Line3, 1.25f},
-        {Line.Line4, 3.75f}
+    /// <summary>
+    /// ライン毎にホールドノーツが残っているかを調べるindex
+    /// </summary>
+    private static readonly Dictionary<Line, int> CURRENT_LINE_HOLD_NOTE_LIST = new Dictionary<Line, int>();
+
+    private static readonly Dictionary<Line, float> LINE_POSITION = new Dictionary<Line, float>()
+    {
+        {Line.Line1, -3.18f},
+        {Line.Line2, -1.06f},
+        {Line.Line3, 1.06f},
+        {Line.Line4, 3.18f}
     };
     private static readonly Dictionary<Judge, float> JUDGE_RANGE = new Dictionary<Judge, float>()
     {
         {Judge.Pafect, 0.1f},
         {Judge.Graet, 0.2f},
-        {Judge.Miss, 0.4f}
+        {Judge.Miss, 0.35f}
     };
     private static readonly Dictionary<Judge, int> JUDGE_SCORE = new Dictionary<Judge, int>()
     {
         {Judge.Pafect,1000},
         {Judge.Graet,500},
         {Judge.Miss,0},
+        {Judge.Hold,100}
      };
 
-    [SerializeField] private readonly List<AudioClip> bgmList;
-    [SerializeField] private readonly List<AudioClip> seList;
+    [SerializeField] private List<AudioClip> bgmList;
+    [SerializeField] private List<AudioClip> seList;
     private AudioSource audioSource;
 
     // Use this for initialization
-    void Start()
-    {
+    void Start() {
         #region 今は使わないけど後で使うやつ
         //gameMaster = GameObject.FindGameObjectWithTag("GameMaster").GetComponent<GameMaster>();
         //musicName = gameMaster.GetMusicName();
         //deltaTime = gameMaster.GetTimeDeltaTime();
         //noteSpeed = gameMaster.GetNoteSpeed();
+        //gameMaster.SetNoteSpeed(1.5f);
         #endregion
 
         deltaTime = Time.deltaTime;
@@ -91,100 +111,74 @@ public class MainManager : MonoBehaviour
         //Jsonから譜面をもらってきてEditDate,Noteクラスとして復元
         string json = Resources.Load<TextAsset>(musicName).ToString();
         editData = JsonUtility.FromJson<MusicDTO.EditData>(json);
-        note = JsonUtility.FromJson<MusicDTO.Note>(json);
-        
+        musicNote = JsonUtility.FromJson<MusicDTO.Note>(json);
+
         MusicSelect();
         Initialize();
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         //曲が流れ始めるまでに一拍置く処理
-        if (carrentGameTime < 5)
-        {
+        if (carrentGameTime < DELAY_TIME) {
             carrentGameTime += deltaTime;
-        }
-        else if (!musicStart)
-        {
+        } else if (!musicStart) {
             audioSource.Play();
             musicStart = true;
         }
         //ノーツの位置を更新する処理
-        foreach (var notes in LINE_NOTE_LIST.Values)
-        {
-            foreach (var note in notes)
-            {
+        foreach (var notes in LINE_NOTE_LIST.Values) {
+            foreach (var note in notes) {
                 var pos = note.transform.position;
-                pos.y = judgeLineObj.transform.position.y + (note.notePos.notesTimeg - audioSource.time) * noteSpeed;
+                pos.y = judgeLineObj.transform.position.y + (note.notePos.notesTimeg - audioSource.time - carrentGameTime + DELAY_TIME) * noteSpeed;
                 note.transform.position = pos;
             }
         }
 
-        //押せなかったnotesをmissにする処理
-        foreach (Line _line in System.Enum.GetValues(typeof(Line)))
-        {
-            int index = CURRENT_LINE_NOTE_LIST[_line];
-            if (index < 0)
-            {
-                //これ以降のループ処理をせずに次の周回に移る
-                continue;
+        HoldNotesUpdete();
+        JudgeNotesMiss();
+
+        if (carrentGameTime > DELAY_TIME - JUDGE_RANGE[Judge.Miss]) {
+            if (Input.GetButtonDown("Button1")) {
+                audioSource.PlayOneShot(seList[0]);
+                JudgeNotes(Line.Line1);
+            }
+            if (Input.GetButtonDown("Button2")) {
+                audioSource.PlayOneShot(seList[0]);
+                JudgeNotes(Line.Line2);
+            }
+            if (Input.GetButtonDown("Button3")) {
+                audioSource.PlayOneShot(seList[0]);
+                JudgeNotes(Line.Line3);
+            }
+            if (Input.GetButtonDown("Button4")) {
+                audioSource.PlayOneShot(seList[0]);
+                JudgeNotes(Line.Line4);
             }
 
-            var note = LINE_NOTE_LIST[_line][CURRENT_LINE_NOTE_LIST[_line]];
-            float diff = audioSource.time - note.notePos.notesTimeg;
-            if (diff > JUDGE_RANGE[Judge.Miss])
-            {
-                missNum++;
-                combo = 0;
-                comboText.text = combo.ToString();
-                missText.text = missNum.ToString();
-
-                if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] + 1 < LINE_NOTE_LIST[_line].Count)
-                {
-                    CURRENT_LINE_NOTE_LIST[note.notePos.lineNum]++;
-                }
-                else
-                {
-                    CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] = -1;
-                }
+            if (Input.GetButton("Button1")) {
+                JudgeHoldNotes(Line.Line1);
+            }
+            if (Input.GetButton("Button2")) {
+                JudgeHoldNotes(Line.Line2);
+            }
+            if (Input.GetButton("Button3")) {
+                JudgeHoldNotes(Line.Line3);
+            }
+            if (Input.GetButton("Button4")) {
+                JudgeHoldNotes(Line.Line4);
             }
         }
-
-        if (Input.GetButtonDown("Button1"))
-        {
-            audioSource.PlayOneShot(seList[0]);
-            JudgeNotes(Line.Line1);
-        }
-        if (Input.GetButtonDown("Button2"))
-        {
-            audioSource.PlayOneShot(seList[0]);
-            JudgeNotes(Line.Line2);
-        }
-        if (Input.GetButtonDown("Button3"))
-        {
-            audioSource.PlayOneShot(seList[0]);
-            JudgeNotes(Line.Line3);
-        }
-        if (Input.GetButtonDown("Button4"))
-        {
-            audioSource.PlayOneShot(seList[0]);
-            JudgeNotes(Line.Line4);
-        }
-
     }
 
 
     /// <summary>
     /// 曲選択から貰った曲の名前をbgmListから探し、audioSourceに格納する
     /// </summary>
-    void MusicSelect()
-    {
+    void MusicSelect() {
         audioSource = GetComponent<AudioSource>();
-        foreach (AudioClip bgm in bgmList)
-        {
-            if (bgm.name == musicName)
-            {
+        foreach (AudioClip bgm in bgmList) {
+            if (bgm.name == musicName) {
                 audioSource.clip = bgm;
             }
         }
@@ -193,55 +187,42 @@ public class MainManager : MonoBehaviour
     /// <summary>
     /// ノーツを生成する関数
     /// </summary>
-    void Initialize()
-    {
+    void Initialize() {
         score = 0;
         combo = 0;
-
+        offset = (float)editData.offset / (float)audioSource.clip.frequency;
 
         //Jsonから受け取ったデータを使いやすいように変換する処理
-        foreach (var note in note.notes)
-        {
-        
-        }
-
-        for (int i = 0; i < note.notes.Count; i++)
-        {
+        for (int i = 0; i < musicNote.notes.Count; i++) {
             //ノーツのある時間 = ノーツの最短間隔[60f / (BPM * LPB)] * エディタ上のノーツの位置
-            float time = 60f / (editData.BPM * note.notes[0].LPB) * note.notes[i].num;
+            float time = 60f / (editData.BPM * musicNote.notes[0].LPB) * musicNote.notes[i].num + offset;
             Note.NotePos notePos;
-            if (note.notes[i].type == 2) {
-                notePos = new Note.NotePos(time, (Line)System.Enum.ToObject(typeof(Line), note.notes[i].block), (NoteType)System.Enum.ToObject(typeof(NoteType), note.notes[i].type));
+            if (musicNote.notes[i].type != 2) {
+                notePos = new Note.NotePos(time, musicNote.notes[i].block, musicNote.notes[i].type);
             } else {
-                for (int j = 0; j < note.notes[i].notes.Count; j++)
-                {
-                    
+                List<Note> _noteList = new List<Note>();
+                for (int j = 0; j < musicNote.notes[i].notes.Count; j++) {
+                    float _time = 60f / (editData.BPM * musicNote.notes[0].LPB) * musicNote.notes[i].notes[j].num + offset;
+                    Note _noteTmp = new Note();
+                    _noteTmp.Initialize(new Note.NotePos(_time, musicNote.notes[i].notes[j].block, musicNote.notes[i].notes[j].type));
+                    _noteList.Add(_noteTmp);
                 }
-                notePos = new Note.NotePos(time, (Line)System.Enum.ToObject(typeof(Line), note.notes[i].block), (NoteType)System.Enum.ToObject(typeof(NoteType), note.notes[i].type));
+                notePos = new Note.NotePos(time, musicNote.notes[i].block, musicNote.notes[i].type, _noteList);
             }
             NOTES_LIST.Add(notePos);
-            #region チームメンバーに向けた説明文
+            #region 
             /*  
-             *  NOTES_LIST.Add
-             *  NOTES_LISTはNote.NotePos型のLIst。Add関数はListの末尾に()の中身を追加する
-             *  
-             *  (Line)System.Enum.ToObject(typeof(Line), note.notes[i].block)
-             *  本来int型であるnote.notes[i].blockをenumのLineに変換する処理
-             *  
-             *  (NoteType)System.Enum.ToObject(typeof(NoteType), note.notes[i].type))
-             *  こちらも同じくnote.notes[i].typeをenumのNoteTypeに変換している
-             *  
-             *  なので
-             *  NOTE_LISTの中にNote.NotePos(どの時間に,どのラインに,どの種類のノーツか)を与えている処理ということになる
+             * 
              */
             #endregion
         }
 
-        
-        foreach (Line line in System.Enum.GetValues(typeof(Line)))
-        {
+
+        foreach (Line line in System.Enum.GetValues(typeof(Line))) {
             LINE_NOTE_LIST.Add(line, new List<Note>());
+            LINE_HOLD_NOTE_LIST.Add(line, new List<Note>());
             CURRENT_LINE_NOTE_LIST.Add(line, -1);
+            CURRENT_LINE_HOLD_NOTE_LIST.Add(line, -1);
             #region チームメンバーに向けた説明文
             /*
              * foreach (Line line in System.Enum.GetValues(typeof(Line)))
@@ -259,32 +240,31 @@ public class MainManager : MonoBehaviour
             #endregion
         }
 
-        foreach (var data in NOTES_LIST)
-        {
+        foreach (var data in NOTES_LIST) {
             var obj = Instantiate(noteObj, transform);
             var note = obj.GetComponent<Note>();
-            note.Intialize(data);
+            note.Initialize(data);
             var pos = obj.transform.position;
-            pos.x = LINE_POSITION[note.notePos.lineNum];
+            pos.x = LINE_POSITION[note.notePos.lineNum] + laneObj.transform.position.x;
             pos.y = judgeLineObj.transform.position.y + note.notePos.notesTimeg * noteSpeed;
             note.transform.position = pos;
             #region チームメンバーに向けた説明文
             /*
              * var obj = Instantiate(noteObj, transform);
-             * Instantiateだけでは生成したオブジェクトにアクセスできないため、Objに代入している
+             * Instantiateだけでは生成したオブジェクトにアクセスできないため、Objに入れている
              * 
              * var note = obj.GetComponent<Note>();
              * GetComponent()関数はオブジェクトの持つコンポーネントの情報を取得することができる
-             * 今回はノーツのもつNoteの情報を取得している。
-             * これによりnoteの持つNoteクラスのpublicな関数や変数を使用することができる
+             * 今回はnoteObjのもつNoteの情報を取得している。
+             * これによりnoteの持つNoteクラスのpublicな関数を使用することができる
              * 
-             * note.Intialize(data); 
-             * なのこれでノーツのもつnote.Initializeを実行可能になる
+             * note.Initialize(data); 
+             * なのこれでnoteのもつNote.Initializeを実行可能になる
              * 
              * var pos = obj.transform.position;
              * ここからは見た通りノーツの座標を決めている処理になる
              * 
-             * pos.x = LINE_POSITION[note.notePos.lineNum];
+             * pos.x = LINE_POSITION[note.notePos.lineNum] + laneObj.transform.position.x;
              * pos.xにはそのノーツがどのLineなのかを見て、対応する数値を代入する
              * 
              * pos.y = judgeLineObj.transform.position.y + note.notePos.notesTimeg * noteSpeed;
@@ -297,8 +277,7 @@ public class MainManager : MonoBehaviour
             #endregion
 
             LINE_NOTE_LIST[note.notePos.lineNum].Add(note);
-            if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] < 0)
-            {
+            if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] < 0) {
                 CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] = 0;
             }
             #region チームメンバーに向けた説明文
@@ -314,46 +293,64 @@ public class MainManager : MonoBehaviour
              */
             #endregion
 
-            if (note.notePos.noteType == NoteType.Hold)
-            {
-                var _obj = Instantiate(noteObj, transform);
-                var _note = _obj.GetComponent<Note>();
-                //_note.Intialize();
+            //ホールドノーツの生成
+            if (note.notePos.noteType == NoteType.Hold) {
+                LINE_HOLD_NOTE_LIST[note.notePos.lineNum].Add(note);
+                if (CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] < 0) {
+                    CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] = 0;
+                }
+                foreach (var _data in data.noteList) {
+                    var _obj = Instantiate(noteObj, transform);
+                    var _note = _obj.GetComponent<Note>();
+                    _note.Initialize(_data.notePos);
+                    var _pos = _obj.transform.position;
+                    _pos.x = LINE_POSITION[_note.notePos.lineNum] + laneObj.transform.position.x;
+                    _pos.y = judgeLineObj.transform.position.y + _note.notePos.notesTimeg * noteSpeed;
+                    _obj.transform.parent = obj.transform;
+                    _note.transform.position = _pos;
+                    
+
+                    var holdObj = Instantiate(holdNoteObj, transform);
+                    var spritRenderer = holdObj.GetComponent<SpriteRenderer>();
+                    var spritSize = spritRenderer.size;
+                    spritSize.x = 1.75f;
+                    spritSize.y = obj.transform.position.y - _obj.transform.position.y - 0.2f;
+                    spritRenderer.size = spritSize;
+                    holdObj.transform.position = (obj.transform.position + _obj.transform.position) / 2;
+                    holdObj.transform.parent = obj.transform;
+                }
             }
         }
     }
 
-    void JudgeNotes(Line _line)
-    {
-        if (CURRENT_LINE_NOTE_LIST[_line] < 0)
-        {
+    /// <summary>
+    /// タッチノーツの判定をとる関数
+    /// </summary>
+    /// <param name="_line"></param>
+    void JudgeNotes(Line _line) {
+        if (CURRENT_LINE_NOTE_LIST[_line] < 0) {
             return;
         }
 
         var note = LINE_NOTE_LIST[_line][CURRENT_LINE_NOTE_LIST[_line]];
         float diff = Mathf.Abs(audioSource.time - note.notePos.notesTimeg);
 
-        if (diff > JUDGE_RANGE[Judge.Miss])
-        {
+
+        if (diff > JUDGE_RANGE[Judge.Miss]) {
             return;
         }
 
         var judge = Judge.Miss;
-        if (diff < JUDGE_RANGE[Judge.Pafect])
-        {
+        if (diff < JUDGE_RANGE[Judge.Pafect]) {
             judge = Judge.Pafect;
             parfectNum++;
             pafectText.text = parfectNum.ToString();
 
-        }
-        else if (diff < JUDGE_RANGE[Judge.Graet])
-        {
+        } else if (diff < JUDGE_RANGE[Judge.Graet]) {
             judge = Judge.Graet;
             greatNum++;
             greatText.text = greatNum.ToString();
-        }
-        else if (diff < JUDGE_RANGE[Judge.Miss])
-        {
+        } else if (diff < JUDGE_RANGE[Judge.Miss]) {
             missNum++;
             missText.text = missNum.ToString();
         }
@@ -361,24 +358,126 @@ public class MainManager : MonoBehaviour
         score += JUDGE_SCORE[judge];
         scoreText.text = score.ToString("D7");
 
-        if (judge != Judge.Miss)
-        {
+        if (judge != Judge.Miss) {
             combo++;
             comboText.text = combo.ToString();
-        }
-        else
-        {
+        } else {
             combo = 0;
             comboText.text = combo.ToString();
         }
-
-        if (CURRENT_LINE_NOTE_LIST[_line] + 1 < LINE_NOTE_LIST[_line].Count)
-        {
+        if (CURRENT_LINE_NOTE_LIST[_line] + 1 < LINE_NOTE_LIST[_line].Count) {
             CURRENT_LINE_NOTE_LIST[_line]++;
-        }
-        else
-        {
+        } else {
             CURRENT_LINE_NOTE_LIST[_line] = -1;
+        }
+    }
+
+    /// <summary>
+    /// ホールドノーツを時間とともに更新し、現在のホールドノーツの終点がどこかを記録する関数
+    /// </summary>
+    private void HoldNotesUpdete() {
+        foreach (Line _line in System.Enum.GetValues(typeof(Line))) {
+            int index = CURRENT_LINE_HOLD_NOTE_LIST[_line];
+            if (index < 0) {
+                continue;
+            }
+
+            //ホールドノーツの終点を記録する
+            var note = LINE_HOLD_NOTE_LIST[_line][CURRENT_LINE_HOLD_NOTE_LIST[_line]];
+            foreach (var _note in note.notePos.noteList) {
+                endHoldNote[(int)_line] = _note;
+            }
+
+            //ホールドノーツを更新し、スコアやコンボに加算する処理
+            float diff = audioSource.time - endHoldNote[(int)_line].notePos.notesTimeg;
+            if (diff > JUDGE_RANGE[Judge.Graet]) {
+                if (CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] + 1 < LINE_HOLD_NOTE_LIST[_line].Count) {
+                    CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum]++;
+                    holdFlg[(int)_line] = false;
+                    holdTime[(int)_line] = 0;
+                } else {
+                    CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] = -1;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// ホールドノーツの判定をとり、スコアやコンボに反映する関数
+    /// </summary>
+    /// <param name="_line"></param>
+    private void JudgeHoldNotes(Line _line) {
+        if (CURRENT_LINE_HOLD_NOTE_LIST[_line] < 0) {
+            return;
+        }
+
+        var note = LINE_HOLD_NOTE_LIST[_line][CURRENT_LINE_HOLD_NOTE_LIST[_line]];
+        float diff = Mathf.Abs(audioSource.time - note.notePos.notesTimeg);
+
+        if (diff > JUDGE_RANGE[Judge.Miss]) {
+            return;
+        }
+
+        if (diff < JUDGE_RANGE[Judge.Graet]) {
+            holdFlg[(int)_line] = true;
+        }
+
+        if (holdFlg[(int)_line] == true) {
+            holdTime[(int)_line] += Time.deltaTime;
+
+            //ホールドの最後を押してるかどうか
+            float endDiff = Mathf.Abs(audioSource.time - endHoldNote[(int)_line].notePos.notesTimeg);
+            if (endDiff < JUDGE_RANGE[Judge.Graet]) {
+                if (CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] + 1 < LINE_HOLD_NOTE_LIST[_line].Count) {
+                    CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum]++;
+                    holdFlg[(int)_line] = false;
+                    holdTime[(int)_line] = 0;
+                } else {
+                    CURRENT_LINE_HOLD_NOTE_LIST[note.notePos.lineNum] = -1;
+                }
+                score += JUDGE_SCORE[Judge.Pafect];
+                scoreText.text = score.ToString("D7");
+                parfectNum++;
+                pafectText.text = parfectNum.ToString();
+                combo++;
+                comboText.text = combo.ToString();
+            }
+        }
+
+        float _minTime = 60f / (editData.BPM * musicNote.notes[0].LPB);
+        if (holdTime[(int)_line] > _minTime) {
+            holdTime[(int)_line] = 0;
+            score += JUDGE_SCORE[Judge.Hold];
+            scoreText.text = score.ToString("D7");
+        }
+    }
+
+
+    /// <summary>
+    /// 押せなかったnotesをmissにする
+    /// </summary>
+    private void JudgeNotesMiss() {
+        foreach (Line _line in System.Enum.GetValues(typeof(Line))) {
+            if (CURRENT_LINE_NOTE_LIST[_line] < 0) {
+                continue;
+            }
+
+            var note = LINE_NOTE_LIST[_line][CURRENT_LINE_NOTE_LIST[_line]];
+            float diff = audioSource.time - note.notePos.notesTimeg;
+            if (diff > JUDGE_RANGE[Judge.Miss]) {
+                if (note.notePos.noteType != NoteType.HoldEnd) {
+                    missNum++;
+                    combo = 0;
+                    comboText.text = combo.ToString();
+                    missText.text = missNum.ToString();
+                }
+
+                if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] + 1 < LINE_NOTE_LIST[_line].Count) {
+                    CURRENT_LINE_NOTE_LIST[note.notePos.lineNum]++;
+                } else {
+                    CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] = -1;
+                }
+            }
         }
     }
 }
