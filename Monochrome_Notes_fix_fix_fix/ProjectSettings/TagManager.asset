@@ -47,6 +47,9 @@ TagManager:
   - name: JudgeLine
     uniqueID: 2729251595
     locked: 0
+  - name: HoldNotes
+    uniqueID: 1769376965
+    locked: 0
   - name: Notes
     uniqueID: 1120924359
     locked: 0

@@ -1,21 +1,26 @@
-﻿namespace Config
-{
-    public enum LineNum
-    {
+﻿namespace Config {
+    public enum Line {
         Line1,
         Line2,
         Line3,
         Line4
     }
 
-    public enum NoteType { 
+    public enum NoteType {
         Touch,
-        Hold
+        Hold,
+        HoldEnd,
     }
 
-    public enum Judge { 
+    public enum Judge {
         Pafect,
         Graet,
-        Miss
+        Miss,
+        Hold,
+    }
+
+    public enum Sound {
+        BGM,
+        SE
     }
 }
