@@ -39,9 +39,6 @@ public class MainManager : MonoBehaviour {
 
     private GameMaster gameMaster;
     private MusicDTO.EditData editData;
-    /// <summary>
-    /// Jsonから復元されたMusicDTO.Noteクラス
-    /// </summary>
     private MusicDTO.Note musicNote;
 
     /// <summary>
@@ -103,7 +100,6 @@ public class MainManager : MonoBehaviour {
         //musicName = gameMaster.GetMusicName();
         //deltaTime = gameMaster.GetTimeDeltaTime();
         //noteSpeed = gameMaster.GetNoteSpeed();
-        //gameMaster.SetNoteSpeed(1.5f);
         #endregion
 
         deltaTime = Time.deltaTime;
@@ -113,7 +109,10 @@ public class MainManager : MonoBehaviour {
         editData = JsonUtility.FromJson<MusicDTO.EditData>(json);
         musicNote = JsonUtility.FromJson<MusicDTO.Note>(json);
 
-        MusicSelect();
+        //audioSource.clipにmusicNameと同じ名前のものを渡す
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = bgmList.Find(bgm => bgm.name == musicName);
+
         Initialize();
     }
 
@@ -126,6 +125,7 @@ public class MainManager : MonoBehaviour {
             audioSource.Play();
             musicStart = true;
         }
+
         //ノーツの位置を更新する処理
         foreach (var notes in LINE_NOTE_LIST.Values) {
             foreach (var note in notes) {
@@ -167,19 +167,6 @@ public class MainManager : MonoBehaviour {
             }
             if (Input.GetButton("Button4")) {
                 JudgeHoldNotes(Line.Line4);
-            }
-        }
-    }
-
-
-    /// <summary>
-    /// 曲選択から貰った曲の名前をbgmListから探し、audioSourceに格納する
-    /// </summary>
-    void MusicSelect() {
-        audioSource = GetComponent<AudioSource>();
-        foreach (AudioClip bgm in bgmList) {
-            if (bgm.name == musicName) {
-                audioSource.clip = bgm;
             }
         }
     }
