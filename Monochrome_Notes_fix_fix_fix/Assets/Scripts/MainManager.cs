@@ -41,6 +41,10 @@ public class MainManager : MonoBehaviour {
     private MusicDTO.EditData editData;
     private MusicDTO.Note musicNote;
 
+    private MyInput Button2 = new MyInput();
+    private MyInput Button2_2 = new MyInput();
+
+
     /// <summary>
     /// 全てのノーツの情報を持つリスト
     /// </summary>
@@ -143,7 +147,7 @@ public class MainManager : MonoBehaviour {
                 audioSource.PlayOneShot(seList[0]);
                 JudgeNotes(Line.Line1);
             }
-            if (Input.GetButtonDown("Button2")) {
+            if (Input.GetButtonDown("Button2") || Button2.GetButtonDown("Button2") || Button2_2.GetButtonDown("Button2_2")) {
                 audioSource.PlayOneShot(seList[0]);
                 JudgeNotes(Line.Line2);
             }
@@ -159,7 +163,7 @@ public class MainManager : MonoBehaviour {
             if (Input.GetButton("Button1")) {
                 JudgeHoldNotes(Line.Line1);
             }
-            if (Input.GetButton("Button2")) {
+            if (Input.GetButton("Button2") || Button2.GetButton("Button2") || Button2.GetButton("Button2_2")) {
                 JudgeHoldNotes(Line.Line2);
             }
             if (Input.GetButton("Button3")) {
