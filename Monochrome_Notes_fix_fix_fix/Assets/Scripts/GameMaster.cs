@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameMaster : MonoBehaviour
+public class GameMaster : SingletonMonoBehaviour<GameMaster>
 {
 
     private static string musicName;
@@ -64,5 +64,16 @@ public class GameMaster : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void Awake()
+    {
+        if (this != Instance)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
     }
 }
