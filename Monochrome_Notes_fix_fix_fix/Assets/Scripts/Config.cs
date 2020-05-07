@@ -9,7 +9,6 @@
     public enum NoteType {
         Touch,
         Hold,
-        HoldEnd,
     }
 
     public enum Judge {

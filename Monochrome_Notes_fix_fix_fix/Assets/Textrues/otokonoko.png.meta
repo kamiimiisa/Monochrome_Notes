@@ -1,7 +1,10 @@
 fileFormatVersion: 2
 guid: 50236b5877291a0499e7a7e4b29baf7c
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: otokonoko_0
+    21300002: otokonoko_1
+    21300004: otokonoko_2
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -38,17 +41,17 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteBorder: {x: 745, y: 0, z: 688, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationDetail: -1
+  spriteTessellationDetail: 0.07
   textureType: 8
   textureShape: 1
   maxTextureSizeSet: 0
@@ -65,11 +68,164 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
-    outline: []
-    physicsShape: []
+    sprites:
+    - serializedVersion: 2
+      name: otokonoko_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 755
+        height: 1080
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: otokonoko_1
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 91
+        width: 463
+        height: 929
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: 68.5, y: 453.5}
+        - {x: -15.5, y: 453.5}
+        - {x: -20.5, y: 438.5}
+        - {x: -17.5, y: 434.5}
+        - {x: -14.5, y: 434.5}
+        - {x: -40.5, y: 435.5}
+        - {x: -55.5, y: 453.5}
+        - {x: -89.5, y: 453.5}
+        - {x: -218.5, y: 341.5}
+        - {x: -218.5, y: 306.5}
+        - {x: -192.5, y: 203.5}
+        - {x: -179.5, y: 204.5}
+        - {x: -178.5, y: 207.5}
+        - {x: -149.5, y: 106.5}
+        - {x: -218.5, y: -45.5}
+        - {x: -218.5, y: -454.5}
+        - {x: -217.5, y: -457.5}
+        - {x: 219.5, y: -457.5}
+        - {x: 219.5, y: 358.5}
+        - {x: 195.5, y: 410.5}
+      tessellationDetail: 0.001
+    - serializedVersion: 2
+      name: otokonoko_2
+      rect:
+        serializedVersion: 2
+        x: 1203
+        y: 0
+        width: 717
+        height: 1080
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    outline:
+    - - {x: 63, y: -428}
+      - {x: 91, y: -443}
+      - {x: 151, y: -443}
+      - {x: 164, y: -437}
+      - {x: 154, y: -356}
+      - {x: 175, y: -350}
+      - {x: 192, y: -321}
+      - {x: 196, y: -252}
+      - {x: 240, y: -243}
+      - {x: 240, y: -214}
+      - {x: 166, y: 53}
+      - {x: 173, y: 60}
+      - {x: 188, y: 121}
+      - {x: 237, y: 167}
+      - {x: 227, y: 222}
+      - {x: 239, y: 264}
+      - {x: 239, y: 266}
+      - {x: 237, y: 268}
+      - {x: 198, y: 386}
+      - {x: 200, y: 405}
+      - {x: 199, y: 408}
+      - {x: 197, y: 410}
+      - {x: 98, y: 464}
+      - {x: 23, y: 470}
+      - {x: -67, y: 470}
+      - {x: -67, y: 467}
+      - {x: -62, y: 459}
+      - {x: -58, y: 448}
+      - {x: -68, y: 447}
+      - {x: -128, y: 408}
+      - {x: -193, y: 348}
+      - {x: -166, y: 330}
+      - {x: -176, y: 248}
+      - {x: -165, y: 216}
+      - {x: -159, y: 216}
+      - {x: -131, y: 118}
+      - {x: -122, y: 116}
+      - {x: -101, y: 136}
+      - {x: -94, y: 64}
+      - {x: -200, y: -204}
+      - {x: -200, y: -221}
+      - {x: -190, y: -246}
+      - {x: -134, y: -264}
+      - {x: -200, y: -350}
+      - {x: -200, y: -355}
+      - {x: -197, y: -358}
+      - {x: -51, y: -354}
+      - {x: -61, y: -383}
+      - {x: -106, y: -402}
+      - {x: -99, y: -432}
+      - {x: -73, y: -443}
+      - {x: -5, y: -443}
+      - {x: 12, y: -424}
+      - {x: 4, y: -352}
+      - {x: 52, y: -352}
+      - {x: 97, y: -351}
+    physicsShape:
+    - - {x: -72.397705, y: -446.64316}
+      - {x: -130.47095, y: -361.41937}
+      - {x: -239.14954, y: -353.06467}
+      - {x: -109.65167, y: 71.7027}
+      - {x: -187.87299, y: 237.73706}
+      - {x: -179.34412, y: 348.50446}
+      - {x: -142.91107, y: 377.41705}
+      - {x: -110.93225, y: 427.36395}
+      - {x: -67.42383, y: 473.55585}
+      - {x: 30.904053, y: 491.76917}
+      - {x: 202.40503, y: 417.23657}
+      - {x: 245.00183, y: 261.43835}
+      - {x: 237.13318, y: 161.6502}
+      - {x: 176.66113, y: 65.10895}
+      - {x: 246.58374, y: -243.93192}
+      - {x: 157.76318, y: -364.27615}
+      - {x: 177.80579, y: -448.2579}
+    - - {x: -944, y: -529}
+      - {x: -959, y: 535}
+      - {x: -249, y: 524}
+      - {x: -261, y: -531}
+    - - {x: 267, y: -531}
+      - {x: 262, y: 525}
+      - {x: 939, y: 525}
+      - {x: 937, y: -531}
   spritePackingTag: 
   userData: 
   assetBundleName: 
