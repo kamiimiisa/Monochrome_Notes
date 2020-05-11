@@ -2,8 +2,8 @@ fileFormatVersion: 2
 guid: 50236b5877291a0499e7a7e4b29baf7c
 TextureImporter:
   fileIDToRecycleName:
-    21300000: otokonoko_0
-    21300002: otokonoko_1
+    21300000: otokonoko_1
+    21300002: okonoko
     21300004: otokonoko_2
   externalObjects: {}
   serializedVersion: 4
@@ -82,21 +82,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: otokonoko_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 755
-        height: 1080
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: otokonoko_1
+      name: okonoko
       rect:
         serializedVersion: 2
         x: 748
@@ -104,7 +90,7 @@ TextureImporter:
         width: 463
         height: 929
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape:
@@ -130,13 +116,13 @@ TextureImporter:
         - {x: 195.5, y: 410.5}
       tessellationDetail: 0.001
     - serializedVersion: 2
-      name: otokonoko_2
+      name: otokonoko_1
       rect:
         serializedVersion: 2
-        x: 1203
-        y: 0
-        width: 717
-        height: 1080
+        x: 1503
+        y: 378
+        width: 87
+        height: 174
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

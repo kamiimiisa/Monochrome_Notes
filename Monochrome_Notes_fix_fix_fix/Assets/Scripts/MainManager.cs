@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 using NoteEditor.DTO;
 using Config;
@@ -12,13 +13,10 @@ public class MainManager : MonoBehaviour {
     [SerializeField][Range(1,20)]private int noteSpeed = 5;
     private readonly float DELAY_TIME = 5f;
     private float offset = 0;
+    [SerializeField] [Range(-10, 10)] private int Fast_Slow = 0;
+    private float timingAdjust = 0;
     [SerializeField] private string musicName = "tutorial"; //テストで入れてるけどほんとは曲選択画面→GMからもらう
     private bool musicStart = false;
-
-    private bool[] holdFlg = { false, false, false, false };
-    private float[] holdTime = { 0, 0, 0, 0 };
-    private float[] musicTime = { 0, 0, 0, 0 };
-    private Note[] endHoldNote = new Note[4];
 
     [SerializeField] private GameObject noteObj;
     [SerializeField] private GameObject holdNoteObj;
@@ -67,21 +65,31 @@ public class MainManager : MonoBehaviour {
 
     private static readonly Dictionary<Judge, float> JUDGE_RANGE = new Dictionary<Judge, float>()
     {
-        {Judge.Pafect, 0.05f},
+        {Judge.Pafect, 0.075f},
         {Judge.Graet, 0.1f},
-        {Judge.Miss, 0.2f}
+        {Judge.Miss, 0.2f},
+        {Judge.Hold,0.15f},
     };
-    private static readonly Dictionary<Judge, int> JUDGE_SCORE = new Dictionary<Judge, int>()
+    private static Dictionary<Judge, int> JUDGE_SCORE = new Dictionary<Judge, int>()
     {
         {Judge.Pafect,1000},
         {Judge.Graet,500},
         {Judge.Miss,0},
-     };
+        {Judge.Hold,500},
+    };
 
     [SerializeField] private List<AudioClip> bgmList;
     [SerializeField] private List<AudioClip> seList;
     private AudioSource MusicSource;
-    [SerializeField] private AudioSource SESource;
+    [SerializeField] private AudioSource[] SESource;
+
+    [SerializeField] private Text musicNameText;
+    [SerializeField] private Text bpmText;
+    [SerializeField] private Text speedText;
+    [SerializeField] private Text humennteisuu;
+
+    [SerializeField] private GameObject testUI;
+    [SerializeField] private Text testResult;
 
 
     // Use this for initialization
@@ -104,11 +112,18 @@ public class MainManager : MonoBehaviour {
         MusicSource = GetComponent<AudioSource>();
         MusicSource.clip = bgmList.Find(bgm => bgm.name == musicName);
 
-        foreach (Line line in System.Enum.GetValues(typeof(Line))) {
+        foreach (Line line in Enum.GetValues(typeof(Line))) {
             LINE_POSITION.Add(line,judgeLineObj[(int)line].transform.position.x);
         }
 
-        SESource.clip = seList[0];
+        musicNameText.text = musicName;
+        bpmText.text = "BPM : " + editData.BPM.ToString();
+        speedText.text = "Speed : "+ noteSpeed.ToString();
+
+        foreach (var source in SESource) {
+            source.clip = seList[0];
+        }
+        timingAdjust = (float)Fast_Slow / 100;
         Initialize();
     }
 
@@ -133,24 +148,40 @@ public class MainManager : MonoBehaviour {
 
         JudgeNotesMiss();
         if (MusicSource.time == MusicSource.clip.length) {
-            Debug.Log("終わりやよ～");
+            string resultT = "D";
+            float resultF = (float)score / maxScore;
+            if (resultF <= 0.7f) {
+                resultT = "C";
+            } else if (resultF <= 0.85f) {
+                resultT = "B";
+            } else if (resultF <= 0.95f) {
+                resultT = "A";
+            } else if (resultF <= 0.98f) {
+                resultT = "S";
+            } else if (resultF < 1) {
+                resultT = "SS";
+            }else if (resultF == 1) {
+                resultT = "SSS";
+            }
+            testResult.text = resultT;
+            testUI.SetActive(true);
         }
 
         if (carrentGameTime > DELAY_TIME - JUDGE_RANGE[Judge.Miss]) {
             if (Input.GetButtonDown("Button1")) {
-                SESource.Play();
+                SESource[0].Play();
                 JudgeNotes(Line.Line1);
             }
             if (Input.GetButtonDown("Button2") || Button2.GetButtonDown("Button2_2") || Button2_2.GetButtonDown("Button2_3")) {
-                SESource.Play();
+                SESource[1].Play();
                 JudgeNotes(Line.Line2);
             }
             if (Input.GetButtonDown("Button3")) {
-                SESource.Play();
+                SESource[2].Play();
                 JudgeNotes(Line.Line3);
             }
             if (Input.GetButtonDown("Button4")) {
-                SESource.Play();
+                SESource[3].Play();
                 JudgeNotes(Line.Line4);
             }
 
@@ -179,51 +210,29 @@ public class MainManager : MonoBehaviour {
         score = 0;
         combo = 0;
         offset = (float)editData.offset / (float)MusicSource.clip.frequency;
-
         //Jsonから受け取ったデータを使いやすいように変換する処理
         for (int i = 0; i < musicNote.notes.Count; i++) {
             //ノーツのある時間 = ノーツの最短間隔[60f / (BPM * LPB)] * エディタ上のノーツの位置
-            float time = 60f / (editData.BPM * musicNote.notes[0].LPB) * musicNote.notes[i].num + offset;
+            Func<float, float> notesTiming = (float x) => 60f / (editData.BPM * musicNote.notes[0].LPB) * x + offset + timingAdjust;
             Note.NotePos notePos;
             if (musicNote.notes[i].type != 2) {
-                notePos = new Note.NotePos(time, musicNote.notes[i].block, musicNote.notes[i].type);
+                notePos = new Note.NotePos(notesTiming(musicNote.notes[i].num), musicNote.notes[i].block, musicNote.notes[i].type);
             } else {
                 List<Note> _noteList = new List<Note>();
                 for (int j = 0; j < musicNote.notes[i].notes.Count; j++) {
-                    float _time = 60f / (editData.BPM * musicNote.notes[0].LPB) * musicNote.notes[i].notes[j].num + offset;
                     Note _noteTmp = new Note();
-                    _noteTmp.Initialize(new Note.NotePos(_time, musicNote.notes[i].notes[j].block, musicNote.notes[i].notes[j].type));
+                    _noteTmp.Initialize(new Note.NotePos(notesTiming(musicNote.notes[i].notes[j].num), musicNote.notes[i].notes[j].block, musicNote.notes[i].notes[j].type));
                     _noteList.Add(_noteTmp);
                 }
-                notePos = new Note.NotePos(time, musicNote.notes[i].block, musicNote.notes[i].type, _noteList);
+                notePos = new Note.NotePos(notesTiming(musicNote.notes[i].num), musicNote.notes[i].block, musicNote.notes[i].type, _noteList);
             }
             NOTES_LIST.Add(notePos);
-            #region 
-            /*  
-             * 
-             */
-            #endregion
         }
 
 
         foreach (Line line in System.Enum.GetValues(typeof(Line))) {
             LINE_NOTE_LIST.Add(line, new List<Note>());
             CURRENT_LINE_NOTE_LIST.Add(line, -1);
-            #region チームメンバーに向けた説明文
-            /*
-             * foreach (Line line in System.Enum.GetValues(typeof(Line)))
-             * このforeach文はenum Lineの要素数だけループする。つまり今回だとLine1~Line4
-             * 
-             * LINE_NOTE_LIST.Add(line, new List<Note>());
-             * まずLINE_NOTE_LISTに空のList<Note>を与えLine1~4までを確保している
-             * これによってレーン毎のノーツを入れる下準備ができた
-             * 
-             * CURRENT_LINE_NOTE_LIST.Add(line, -1);
-             * 次にCURRENT_LINE_NOTE_LISTに-1を入れているが、これは今のノーツがどこかを調べるためのindexになる
-             * -1はノーツがないことを表している
-             * この時点ではまだ何のノーツも存在しないので当然-1が入っている
-             */
-            #endregion
         }
 
         foreach (var data in NOTES_LIST) {
@@ -234,33 +243,6 @@ public class MainManager : MonoBehaviour {
             pos.x = LINE_POSITION[note.notePos.lineNum];
             pos.y = judgeLineObj[(int)data.lineNum].transform.position.y + note.notePos.notesTimeg * noteSpeed;
             note.transform.position = pos;
-            #region チームメンバーに向けた説明文
-            /*
-             * var obj = Instantiate(noteObj, transform);
-             * Instantiateだけでは生成したオブジェクトにアクセスできないため、Objに入れている
-             * 
-             * var note = obj.GetComponent<Note>();
-             * GetComponent()関数はオブジェクトの持つコンポーネントの情報を取得することができる
-             * 今回はnoteObjのもつNoteの情報を取得している。
-             * これによりnoteの持つNoteクラスのpublicな関数を使用することができる
-             * 
-             * note.Initialize(data); 
-             * なのこれでnoteのもつNote.Initializeを実行可能になる
-             * 
-             * var pos = obj.transform.position;
-             * ここからは見た通りノーツの座標を決めている処理になる
-             * 
-             * pos.x = LINE_POSITION[note.notePos.lineNum] + laneObj.transform.position.x;
-             * pos.xにはそのノーツがどのLineなのかを見て、対応する数値を代入する
-             * 
-             * pos.y = judgeLineObj.transform.position.y + note.notePos.notesTimeg * noteSpeed;
-             * pos.yには判定ラインからnoteSpeedの速度で動いたときに何秒離れた位置になるかを代入
-             * 
-             * note.transform.position = pos;
-             * xとyの座標が確定したのでノーツのtransform.positionに代入
-             * これでノーツが譜面通り配置される
-             */
-            #endregion
 
             float spriteX = 2f;
             if (note.notePos.lineNum == Line.Line1 || note.notePos.lineNum == Line.Line4) {
@@ -271,23 +253,10 @@ public class MainManager : MonoBehaviour {
             spritSize.x = spriteX;
             spritRenderer.size = spritSize;
 
-            maxScore += JUDGE_SCORE[Judge.Pafect];
             LINE_NOTE_LIST[note.notePos.lineNum].Add(note);
             if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] < 0) {
                 CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] = 0;
             }
-            #region チームメンバーに向けた説明文
-            /*
-             *  LINE_NOTE_LIST[note.notePos.lineNum].Add(note);
-             *  ライン毎にノーツを持つLINE_NOTE_LISTにノーツを追加している
-             *  
-             *  if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] < 0) {
-             *  CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] = 0;
-             *  }
-             *  CURRENT_LINE_NOTE_LISTには最初ノーツがないことを表す-1が入っている
-             *  ノーツを生成した為、そのノーツのあるラインに0を与える
-             */
-            #endregion
 
             //ホールドノーツの生成
             if (note.notePos.noteType == NoteType.Hold) {
@@ -320,9 +289,13 @@ public class MainManager : MonoBehaviour {
                     holdObj.transform.position = (obj.transform.position + _obj.transform.position) / 2;
                     holdObj.transform.parent = obj.transform;
 
-                    maxScore += JUDGE_SCORE[Judge.Pafect];
                     LINE_NOTE_LIST[_note.notePos.lineNum].Add(_note);
                 }
+
+                maxScore += JUDGE_SCORE[Judge.Hold];
+                maxScore += JUDGE_SCORE[Judge.Hold];
+            } else {
+                maxScore += JUDGE_SCORE[Judge.Pafect];
             }
         }
     }
@@ -396,12 +369,13 @@ public class MainManager : MonoBehaviour {
 
         float diff = Mathf.Abs(MusicSource.time - _note.notePos.notesTimeg);
         if (diff > JUDGE_RANGE[Judge.Pafect]) {
+            SESource[(int)_line].Play();
             return;
         }
 
         var judge = Judge.Miss;
-        if (diff < JUDGE_RANGE[Judge.Pafect]) {
-            judge = Judge.Pafect;
+        if (diff < JUDGE_RANGE[Judge.Hold]) {
+            judge = Judge.Hold;
             ++parfectNum;
             //pafectText.text = parfectNum.ToString();
         }
@@ -460,6 +434,5 @@ public class MainManager : MonoBehaviour {
             }
         }
     }
-
 
 }
