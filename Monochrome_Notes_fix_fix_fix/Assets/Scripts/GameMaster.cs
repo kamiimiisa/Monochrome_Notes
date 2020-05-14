@@ -2,17 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Config;
 
 public class GameMaster : SingletonMonoBehaviour<GameMaster>
 {
-
-    public enum SceneName {
-        Main,
-        MusicSelect,
-        Title,
-        Tutorial
-    };
-
+    
     private static string musicName;
     public static string MusicName
     {
@@ -85,7 +79,11 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
         DontDestroyOnLoad(gameObject);
     }
     public static void SceneChanger(SceneName _sceneName) {
-        SceneManager.LoadScene(_sceneName.ToString());
+        if (_sceneName != SceneName.Exit) {
+            SceneManager.LoadScene(_sceneName.ToString());
+        } else {
+            Application.Quit();
+        }
     }
 
 }

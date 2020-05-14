@@ -9,7 +9,6 @@ using Monochrome_Notes;
 
 public class MainManager : MonoBehaviour {
     private float carrentGameTime = 0;
-    private float deltaTime;
     [SerializeField][Range(1,20)]private int noteSpeed = 5;
     private readonly float DELAY_TIME = 5f;
     private float offset = 0;
@@ -17,6 +16,7 @@ public class MainManager : MonoBehaviour {
     private float timingAdjust = 0;
     [SerializeField] private string musicName = "tutorial"; //テストで入れてるけどほんとは曲選択画面→GMからもらう
     private bool musicStart = false;
+    private bool musicEnd = false;
 
     [SerializeField] private GameObject noteObj;
     [SerializeField] private GameObject holdNoteObj;
@@ -54,13 +54,16 @@ public class MainManager : MonoBehaviour {
     /// <summary>
     /// ライン毎にノーツの情報を持つDictionary
     /// </summary>
-    private static readonly Dictionary<Line, List<Note>> LINE_NOTE_LIST = new Dictionary<Line, List<Note>>();
+    private static Dictionary<Line, List<Note>> LINE_NOTE_LIST = new Dictionary<Line, List<Note>>();
     
     /// <summary>
     /// ライン毎にノーツが残っているかを調べるindex
     /// </summary>
-    private static readonly Dictionary<Line, int> CURRENT_LINE_NOTE_LIST = new Dictionary<Line, int>();
+    private static  Dictionary<Line, int> CURRENT_LINE_NOTE_LIST = new Dictionary<Line, int>();
 
+    /// <summary>
+    /// それぞれのラインの座標
+    /// </summary>
     private static Dictionary<Line, float> LINE_POSITION = new Dictionary<Line, float>();
 
     private static readonly Dictionary<Judge, float> JUDGE_RANGE = new Dictionary<Judge, float>()
@@ -92,6 +95,13 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private Text testResult;
 
 
+    private void Awake() {
+        NOTES_LIST = new List<Note.NotePos>();
+        LINE_NOTE_LIST = new Dictionary<Line, List<Note>>();
+        CURRENT_LINE_NOTE_LIST = new Dictionary<Line, int>();
+        LINE_POSITION = new Dictionary<Line, float>();
+    }
+
     // Use this for initialization
     void Start() {
         #region 今は使わないけど後で使うやつ
@@ -101,7 +111,8 @@ public class MainManager : MonoBehaviour {
         //noteSpeed = gameMaster.GetNoteSpeed();
         #endregion
 
-        deltaTime = Time.deltaTime;
+        musicName = GameMaster.MusicName;
+        carrentGameTime = 0;
 
         //Jsonから譜面をもらってきてEditDate,Noteクラスとして復元
         string json = Resources.Load<TextAsset>(musicName).ToString();
@@ -131,7 +142,7 @@ public class MainManager : MonoBehaviour {
     void Update() {
         //曲が流れ始めるまでに一拍置く処理
         if (carrentGameTime < DELAY_TIME) {
-            carrentGameTime += deltaTime;
+            carrentGameTime += Time.deltaTime;
         } else if (!musicStart) {
             MusicSource.Play();
             musicStart = true;
@@ -145,6 +156,7 @@ public class MainManager : MonoBehaviour {
                 note.transform.position = pos;
             }
         }
+
 
         JudgeNotesMiss();
         if (MusicSource.time == MusicSource.clip.length) {
@@ -165,7 +177,13 @@ public class MainManager : MonoBehaviour {
             }
             testResult.text = resultT;
             testUI.SetActive(true);
+            musicEnd = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.Joystick1Button2) && musicEnd) {
+            GameMaster.SceneChanger(SceneName.MusicSelect);
+        }
+
 
         if (carrentGameTime > DELAY_TIME - JUDGE_RANGE[Judge.Miss]) {
             if (Input.GetButtonDown("Button1")) {
@@ -369,7 +387,6 @@ public class MainManager : MonoBehaviour {
 
         float diff = Mathf.Abs(MusicSource.time - _note.notePos.notesTimeg);
         if (diff > JUDGE_RANGE[Judge.Pafect]) {
-            SESource[(int)_line].Play();
             return;
         }
 
@@ -377,6 +394,8 @@ public class MainManager : MonoBehaviour {
         if (diff < JUDGE_RANGE[Judge.Hold]) {
             judge = Judge.Hold;
             ++parfectNum;
+
+            SESource[(int)_line].Play();
             //pafectText.text = parfectNum.ToString();
         }
 

@@ -22,4 +22,12 @@
         BGM,
         SE
     }
+
+    public enum SceneName {
+        Main,
+        MusicSelect,
+        Title,
+        Tutorial,
+        Exit,
+    };
 }
