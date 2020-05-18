@@ -8,6 +8,7 @@
 
     public enum NoteType {
         Touch,
+        Hold_Start,
         Hold,
     }
 

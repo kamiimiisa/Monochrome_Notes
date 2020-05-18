@@ -49,7 +49,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
         set { missNum = value; }
     }
 
-    private static float noteSpeed;
+    private static float noteSpeed = 10f;
     public static float NoteSpeed
     {
         get { return noteSpeed; }

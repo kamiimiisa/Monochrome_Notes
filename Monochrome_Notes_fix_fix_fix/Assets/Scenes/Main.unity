@@ -1022,7 +1022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aeaf69e8d5f24042b63815fbfd9614a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteSpeed: 10
+  noteSpeed: 15
   Fast_Slow: 0
   musicName: True END World
   noteObj: {fileID: 1179597283970956, guid: 5852cafbe9d518c41a7448f58ae57a0e, type: 2}
