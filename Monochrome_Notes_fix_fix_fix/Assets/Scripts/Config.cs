@@ -8,6 +8,7 @@
 
     public enum NoteType {
         Touch,
+        Hold_Start,
         Hold,
     }
 
@@ -22,4 +23,12 @@
         BGM,
         SE
     }
+
+    public enum SceneName {
+        Main,
+        MusicSelect,
+        Title,
+        Tutorial,
+        Exit,
+    };
 }
