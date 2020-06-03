@@ -8,15 +8,18 @@
 
     public enum NoteType {
         Touch,
-        Hold_Start,
+        HoldStart,
         Hold,
+        HoldEnd,
     }
 
     public enum Judge {
         Pafect,
         Graet,
         Miss,
+        HoldStart,
         Hold,
+        HoldEnd,
     }
 
     public enum Sound {
@@ -30,5 +33,5 @@
         Title,
         Tutorial,
         Exit,
-    };
+    }
 }

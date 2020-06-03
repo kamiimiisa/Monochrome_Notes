@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4011318948831714}
   - component: {fileID: 212059950218239094}
   m_Layer: 0
-  m_Name: HoldNotes_obj
+  m_Name: HoldNotesBack_obj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

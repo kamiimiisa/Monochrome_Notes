@@ -25,6 +25,13 @@ namespace Monochrome_Notes {
                 noteList = new List<Note>();
             }
 
+            public NotePos(float _noteTimeg, int _lineNum, NoteType _noteType) {
+                notesTimeg = _noteTimeg;
+                lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
+                noteType = _noteType;
+                noteList = new List<Note>();
+            }
+
             public NotePos(float _noteTimeg, Line _lineNum, NoteType _noteType, List<Note> _noteList) {
                 notesTimeg = _noteTimeg;
                 lineNum = _lineNum;
@@ -36,6 +43,13 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
                 noteType = (NoteType)System.Enum.ToObject(typeof(NoteType), _noteType - 1);
+                noteList = _noteList;
+            }
+
+            public NotePos(float _noteTimeg, int _lineNum, NoteType _noteType, List<Note> _noteList) {
+                notesTimeg = _noteTimeg;
+                lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
+                noteType = _noteType;
                 noteList = _noteList;
             }
         }

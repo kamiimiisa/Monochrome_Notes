@@ -43,7 +43,7 @@ public class TitleManager : MonoBehaviour {
                 break;
         }
 
-        if (Input.GetKeyDown(KeyCode.Joystick1Button2) || Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetButtonDown("Return")) {
             GameMaster.SceneChanger(sceneName);
         }
     }

@@ -7,7 +7,7 @@ using Config;
 public class GameMaster : SingletonMonoBehaviour<GameMaster>
 {
     
-    private static string musicName;
+    private static string musicName = "tutorial";
     public static string MusicName
     {
         get { return musicName; }
@@ -52,7 +52,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
     private static float noteSpeed = 10f;
     public static float NoteSpeed
     {
-        get { return noteSpeed; }
+        get { return noteSpeed * 3; }
         set { noteSpeed = value; }
     }
 
