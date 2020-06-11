@@ -23,6 +23,7 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private GameObject holdNoteObj;
     [SerializeField] private GameObject holdNoteTapObj;
     [SerializeField] private GameObject holdEmptyObj;
+    [SerializeField] private GameObject breakNotesObj;
     [SerializeField] private GameObject[] judgeLineObj;
     
     [SerializeField] private TextMesh scoreText;
@@ -75,6 +76,7 @@ public class MainManager : MonoBehaviour {
         {Judge.Miss, 0.2f},
         {Judge.HoldStart,0.1f},
         {Judge.Hold,0.15f},
+        {Judge.Break,0.2f},
     };
 
     //private readonly Dictionary<Judge, float> JUDGE_RANGE = new Dictionary<Judge, float>()
@@ -96,6 +98,7 @@ public class MainManager : MonoBehaviour {
         {Judge.HoldStart,500},
         {Judge.Hold,50},
         {Judge.HoldEnd,500},
+        {Judge.Break,1000}
     };
 
     private static Dictionary<Judge, Color> JUDGE_COLOR = new Dictionary<Judge, Color>()
@@ -106,6 +109,7 @@ public class MainManager : MonoBehaviour {
         {Judge.Hold,Color.red},
         {Judge.HoldStart,Color.red},
         {Judge.HoldEnd,Color.red},
+        {Judge.Break,Color.magenta},
     };
 
     [SerializeField] private List<AudioClip> bgmList;
@@ -130,16 +134,18 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private Text missText;
     [SerializeField] private Text scoreResultText;
     [SerializeField] private Text parScore;
-
-    [Space(1)]
     [SerializeField] private Image parfectGauge;
     [SerializeField] private Image greatGauge;
     [SerializeField] private Image missGauge;
-    
+
+
+    [SerializeField] private GameObject PouseCanvas;
 
 
     [SerializeField] private Image[] Nexts = new Image[2];
     private SceneName nextScene = SceneName.MusicSelect;
+
+    [SerializeField] private Animator comboAnimator;
 
 
     private void Awake() {
@@ -151,8 +157,9 @@ public class MainManager : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        noteSpeed = (int)GameMaster.NoteSpeed;
+        noteSpeed = (int)GameMaster.NoteSpeed * 3;
         musicName = GameMaster.MusicName;
+        Fast_Slow = GameMaster.Ajust;
         carrentGameTime = 0;
 
         //Jsonから譜面をもらってきてEditDate,Noteクラスとして復元
@@ -183,7 +190,7 @@ public class MainManager : MonoBehaviour {
     void Update() {
         //曲が流れ始めるまでに一拍置く処理
         if (carrentGameTime < DELAY_TIME) {
-            carrentGameTime += Time.deltaTime;
+            carrentGameTime += GameMaster.DeltaTime;
         } else if (!musicStart) {
             MusicSource.Play();
             musicStart = true;
@@ -200,6 +207,8 @@ public class MainManager : MonoBehaviour {
 
 
         JudgeNotesMiss();
+        ComboTextUpdate();
+
         if (MusicSource.time == MusicSource.clip.length && !musicEnd) {
             string resultT = "D";
             float resultF = (float)score / maxScore;
@@ -233,26 +242,46 @@ public class MainManager : MonoBehaviour {
 
         if (musicEnd) {
 
-            parfectGauge.fillAmount = Mathf.MoveTowards(parfectGauge.fillAmount, (float)parfectNum / noteCount, 1 * Time.deltaTime);
-            greatGauge.fillAmount = Mathf.MoveTowards(greatGauge.fillAmount, (float)greatNum / noteCount, 1 * Time.deltaTime);
-            missGauge.fillAmount = Mathf.MoveTowards(missGauge.fillAmount, (float)missNum / noteCount, 1 * Time.deltaTime);
-
-
-            if (Button2.GetButtonDown("Button2_2")) {
-                if (Input.GetAxisRaw("Button2_2") < 1) {
-                    nextScene = SceneName.MusicSelect;
-                } else {
-                    nextScene = SceneName.Title;
-                }
-            }
+            parfectGauge.fillAmount = Mathf.MoveTowards(parfectGauge.fillAmount, (float)parfectNum / noteCount, 1 * GameMaster.DeltaTime);
+            greatGauge.fillAmount = Mathf.MoveTowards(greatGauge.fillAmount, (float)greatNum / noteCount, 1 * GameMaster.DeltaTime);
+            missGauge.fillAmount = Mathf.MoveTowards(missGauge.fillAmount, (float)missNum / noteCount, 1 * GameMaster.DeltaTime);
+            
             switch (nextScene) {
-                case SceneName.MusicSelect:
+                case SceneName.Main:
                     Nexts[0].color = new Color(0.38f, 0.38f, 0.38f, 1);
                     Nexts[1].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+                    Nexts[2].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+                    if (Button2.GetButtonDown("Button2_2")) {
+                        if (Input.GetAxisRaw("Button2_2") < 1) {
+                            nextScene = SceneName.Main;
+                        } else {
+                            nextScene = SceneName.MusicSelect;
+                        }
+                    }
+                    break;
+                case SceneName.MusicSelect:
+                    Nexts[0].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+                    Nexts[1].color = new Color(0.38f, 0.38f, 0.38f, 1f);
+                    Nexts[2].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+                    if (Button2.GetButtonDown("Button2_2")) {
+                        if (Input.GetAxisRaw("Button2_2") < 1) {
+                            nextScene = SceneName.Main;
+                        } else {
+                            nextScene = SceneName.Title;
+                        }
+                    }
                     break;
                 case SceneName.Title:
                     Nexts[0].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
-                    Nexts[1].color = new Color(0.38f, 0.38f, 0.38f, 1);
+                    Nexts[1].color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+                    Nexts[2].color = new Color(0.38f, 0.38f, 0.38f, 1f);
+                    if (Button2.GetButtonDown("Button2_2")) {
+                        if (Input.GetAxisRaw("Button2_2") < 1) {
+                            nextScene = SceneName.MusicSelect;
+                        } else {
+                            nextScene = SceneName.Title;
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -273,6 +302,9 @@ public class MainManager : MonoBehaviour {
             if (Input.GetButtonDown("Button4")) {
                 JudgeNotes(Line.Line4);
             }
+            if (Input.GetButtonDown("Button5")) {
+                JudgeNotes(Line.Line5);
+            }
 
             if (Input.GetButton("Button1")) {
                 JudgeHoldNotes(Line.Line1);
@@ -288,6 +320,8 @@ public class MainManager : MonoBehaviour {
 
             }
         }
+
+        Pouse();
 
         //クリアゲージを更新する処理
         gauge.fillAmount = (float)score / maxScore;
@@ -334,10 +368,19 @@ public class MainManager : MonoBehaviour {
 
         foreach (var data in NOTES_LIST) {
             GameObject obj;
-            if (data.noteType == NoteType.Touch) {
-                obj = Instantiate(noteObj, transform);
-            } else {
-                obj = Instantiate(holdNoteTapObj, transform);
+            switch (data.noteType) {
+                case NoteType.Touch:
+                    obj = Instantiate(noteObj, transform);
+                    break;
+                case NoteType.HoldStart:
+                    obj = Instantiate(holdNoteTapObj, transform);
+                    break;
+                case NoteType.Break:
+                    obj = Instantiate(breakNotesObj, transform);
+                    break;
+                default:
+                    obj = Instantiate(noteObj, transform);
+                    break;
             }
             var note = obj.GetComponent<Note>();
             note.Initialize(data);
@@ -350,6 +393,9 @@ public class MainManager : MonoBehaviour {
             float spriteX = 2f;
             if (note.notePos.lineNum == Line.Line1 || note.notePos.lineNum == Line.Line4) {
                 spriteX = 0.8f;
+            }
+            if (note.notePos.lineNum == Line.Line5) {
+                spriteX = 10.5f;
             }
             var spritRenderer = obj.GetComponent<SpriteRenderer>();
             var spritSize = spritRenderer.size;
@@ -395,21 +441,15 @@ public class MainManager : MonoBehaviour {
                         if (_note.notePos.lineNum == Line.Line1 || _note.notePos.lineNum == Line.Line4) {
                             spriteX = 0.8f;
                         }
+                        if (_note.notePos.lineNum == Line.Line5) {
+                            spriteX = 10.5f;
+                        }
                         var _spritRenderer = _obj.GetComponent<SpriteRenderer>();
                         var _spritSize = _spritRenderer.size;
                         _spritSize.x = spriteX;
                         _spritRenderer.size = _spritSize;
 
                         _holdEnd = _obj;
-
-                        //var holdObj = Instantiate(holdNoteObj, transform);
-                        //var _holdNoteSpritRenderer = holdObj.GetComponent<SpriteRenderer>();
-                        //var _holdNotesSpritSize = _holdNoteSpritRenderer.size;
-                        //_holdNotesSpritSize.x = spriteX;
-                        //_holdNotesSpritSize.y = obj.transform.position.y - _obj.transform.position.y - 0.2f;
-                        //_holdNoteSpritRenderer.size = _holdNotesSpritSize;
-                        //holdObj.transform.position = (obj.transform.position + _obj.transform.position) / 2;
-                        //holdObj.transform.parent = obj.transform;
                     }
                     LINE_NOTE_LIST[_note.notePos.lineNum].Add(_note);
                     maxScore += JUDGE_SCORE[_judge];
@@ -443,14 +483,14 @@ public class MainManager : MonoBehaviour {
         //曲が始まるまでの空打ち
         if (carrentGameTime < DELAY_TIME - JUDGE_RANGE[Judge.Miss]) {
             tapEffects[(int)_line].SetEffectData(Color.white, 300f);
-            SESource[(int)_line].Play();
+            SESource[0].Play();
             return;
         }
 
         //LINEにもうノーツが無いときの空打ち
         if (CURRENT_LINE_NOTE_LIST[_line] < 0) {
             tapEffects[(int)_line].SetEffectData(Color.white, 300f);
-            SESource[(int)_line].Play();
+            SESource[0].Play();
             return;
         }
 
@@ -459,40 +499,47 @@ public class MainManager : MonoBehaviour {
         float diff = Mathf.Abs(MusicSource.time - note.notePos.notesTimeg);
         if (diff > JUDGE_RANGE[Judge.Miss]) {
             tapEffects[(int)_line].SetEffectData(Color.white, 300f);
-            SESource[(int)_line].Play();
-            return;
-        }
-        //～空打ち処理
-
-        //ホールドの時は反応しないようにする
-        if (note.notePos.noteType == NoteType.Hold || note.notePos.noteType == NoteType.HoldEnd) {
+            SESource[0].Play();
             return;
         }
 
         var judge = Judge.Miss;
-        if (note.notePos.noteType == NoteType.HoldStart) {
-            if (diff < JUDGE_RANGE[Judge.HoldStart]) {
-                judge = Judge.HoldStart;
-                ++parfectNum;
-            } else if (diff < JUDGE_RANGE[Judge.Miss]) {
-                ++missNum;
-            }
 
-        } else {
-            if (diff < JUDGE_RANGE[Judge.Pafect]) {
-                judge = Judge.Pafect;
-                ++parfectNum;
+        switch (note.notePos.noteType) {
+            case NoteType.Touch:
+                if (diff < JUDGE_RANGE[Judge.Pafect]) {
+                    judge = Judge.Pafect;
+                    ++parfectNum;
 
-            } else if (diff < JUDGE_RANGE[Judge.Graet]) {
-                judge = Judge.Graet;
-                ++greatNum;
-            } else if (diff < JUDGE_RANGE[Judge.Miss]) {
-                ++missNum;
-            }
+                } else if (diff < JUDGE_RANGE[Judge.Graet]) {
+                    judge = Judge.Graet;
+                    ++greatNum;
+                } else if (diff < JUDGE_RANGE[Judge.Miss]) {
+                    ++missNum;
+                }
+                break;
+            case NoteType.HoldStart:
+                if (diff < JUDGE_RANGE[Judge.HoldStart]) {
+                    judge = Judge.HoldStart;
+                    ++parfectNum;
+                } else if (diff < JUDGE_RANGE[Judge.Miss]) {
+                    ++missNum;
+                }
+                break;
+            case NoteType.Hold:
+            case NoteType.HoldEnd:
+                return;
+            case NoteType.Break:
+                if (diff < JUDGE_RANGE[Judge.Break]) {
+                    judge = Judge.Break;
+                    ++parfectNum;
+                }
+                break;
+            default:
+                break;
         }
 
-
-        SESource[(int)_line].Play();
+        SESource[0].Play();
         score += JUDGE_SCORE[judge];
         scoreText.text = "Score : " + score.ToString("D7");
 
@@ -500,11 +547,9 @@ public class MainManager : MonoBehaviour {
 
         if (judge != Judge.Miss) {
             ++combo;
-            comboText.text = combo.ToString();
             
         } else {
             combo = 0;
-            comboText.text = combo.ToString();
         }
         if (maxCombo < combo) {
             maxCombo = combo;
@@ -540,23 +585,20 @@ public class MainManager : MonoBehaviour {
         var judge = Judge.Hold;
         if (diff < JUDGE_RANGE[Judge.Hold]) {
             if(_note.notePos.noteType == NoteType.HoldEnd) {
-                SESource[(int)_line].Play();
+                SESource[0].Play();
                 judge = Judge.HoldEnd;
             }
             ++parfectNum;
-            //pafectText.text = parfectNum.ToString();
         }
 
         score += JUDGE_SCORE[judge];
         scoreText.text = "Score : " + score.ToString("D7");
         ++combo;
-        comboText.text = combo.ToString();
 
         tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 150f);
 
         if (maxCombo < combo) {
             maxCombo = combo;
-            //maxComboText.text = maxCombo.ToString();
         }
         if (CURRENT_LINE_NOTE_LIST[_line] + 1 < LINE_NOTE_LIST[_line].Count) {
             CURRENT_LINE_NOTE_LIST[_line]++;
@@ -582,11 +624,8 @@ public class MainManager : MonoBehaviour {
                 ++missNum;
                 combo = 0;
                 comboText.text = combo.ToString();
-                //missText.text = missNum.ToString();
                 if (maxCombo < combo) {
                     maxCombo = combo;
-                    //maxComboText.text = maxCombo.ToString();
-
                 }
 
                 if (CURRENT_LINE_NOTE_LIST[note.notePos.lineNum] + 1 < LINE_NOTE_LIST[_line].Count) {
@@ -598,4 +637,43 @@ public class MainManager : MonoBehaviour {
         }
     }
 
+    bool b = true;
+    float time = 0f;
+    private void ComboTextUpdate() {
+        if (combo < 10) {
+            comboText.gameObject.SetActive(false);
+        } else if(b){
+            comboText.gameObject.SetActive(true);
+            comboText.text = combo.ToString();
+        }
+
+        if(combo % 100 == 0) {
+            comboAnimator.SetBool("Test",true);
+            b = false;
+        }
+
+        if (!b) {
+            time += GameMaster.DeltaTime;
+        }
+
+        if(time > 0.5f) {
+            b = true;
+            time = 0f;
+            comboAnimator.SetBool("Test", false);
+        }
+    }
+
+    //中断処理
+    private void Pouse() {
+        if (MusicSource.pitch == 1 && MusicSource.time < MusicSource.clip.length) {
+            if (Input.GetButtonDown("Pouse")) {
+                MusicSource.pitch = 0;
+                PouseCanvas.SetActive(true);
+            }
+        } else {
+            
+        }
+
+
+    }
 }

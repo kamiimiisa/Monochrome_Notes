@@ -15,6 +15,9 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = _lineNum;
                 noteType = _noteType;
+                if (_lineNum == Line.Line5) {
+                    noteType = NoteType.Break;
+                }
                 noteList = new List<Note>();
             }
 
@@ -22,6 +25,9 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
                 noteType = (NoteType)System.Enum.ToObject(typeof(NoteType), _noteType - 1);
+                if (_lineNum == 4) {
+                    noteType = NoteType.Break;
+                }
                 noteList = new List<Note>();
             }
 
@@ -29,6 +35,9 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
                 noteType = _noteType;
+                if (_lineNum == 4) {
+                    noteType = NoteType.Break;
+                }
                 noteList = new List<Note>();
             }
 
@@ -36,6 +45,9 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = _lineNum;
                 noteType = _noteType;
+                if (_lineNum == Line.Line5) {
+                    noteType = NoteType.Break;
+                }
                 noteList = _noteList;
             }
 
@@ -43,12 +55,18 @@ namespace Monochrome_Notes {
                 notesTimeg = _noteTimeg;
                 lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
                 noteType = (NoteType)System.Enum.ToObject(typeof(NoteType), _noteType - 1);
+                if (_lineNum == 4) {
+                    noteType = NoteType.Break;
+                }
                 noteList = _noteList;
             }
 
             public NotePos(float _noteTimeg, int _lineNum, NoteType _noteType, List<Note> _noteList) {
                 notesTimeg = _noteTimeg;
                 lineNum = (Line)System.Enum.ToObject(typeof(Line), _lineNum);
+                if (_lineNum == 4) {
+                    noteType = NoteType.Break;
+                }
                 noteType = _noteType;
                 noteList = _noteList;
             }

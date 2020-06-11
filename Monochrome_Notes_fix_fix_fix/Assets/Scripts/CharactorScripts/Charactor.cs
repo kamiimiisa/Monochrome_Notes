@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Charactor : MonoBehaviour{
+public abstract class Charactor : MonoBehaviour{
+    
+    public abstract void Skill();
 
-    public interface Skill {
-        void Skil();
-    }
 }

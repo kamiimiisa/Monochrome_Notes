@@ -17,8 +17,8 @@ public class TapEffect : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        float deltaTime = Time.deltaTime;
-        effNum = Mathf.MoveTowards(effNum, 0, 10);
+        float deltaTime = GameMaster.DeltaTime;
+        effNum = Mathf.MoveTowards(effNum, 0, 30);
         rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, effNum);
 	}
 
