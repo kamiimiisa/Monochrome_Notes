@@ -191,7 +191,6 @@ public class MainManager : MonoBehaviour {
             source.clip = seList[0];
         }
         timingAdjust = (float)Fast_Slow / 100;
-        DataFormat();
         Initialize();
     }
 
@@ -364,8 +363,8 @@ public class MainManager : MonoBehaviour {
         score = 0;
         combo = 0;
         offset = (float)editData.offset / (float)MusicSource.clip.frequency;
-        
 
+        DataFormat();
         foreach (Line line in System.Enum.GetValues(typeof(Line))) {
             LINE_NOTE_LIST.Add(line, new List<Note>());
             CURRENT_LINE_NOTE_LIST.Add(line, -1);
