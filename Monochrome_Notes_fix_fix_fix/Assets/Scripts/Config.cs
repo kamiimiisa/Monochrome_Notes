@@ -13,6 +13,9 @@
         Hold,
         HoldEnd,
         Break,
+        BreakStart,
+        BreakHold,
+        BreakHoldEnd,
     }
 
     public enum Judge {
@@ -23,6 +26,9 @@
         Hold,
         HoldEnd,
         Break,
+        BreakStart,
+        BreakHold,
+        BreakHoldEnd,
     }
 
     public enum Sound {
@@ -36,5 +42,11 @@
         Title,
         Tutorial,
         Exit,
+    }
+
+    public enum PouseStatus {
+        Retry,
+        Resume,
+        MusicSelect,
     }
 }

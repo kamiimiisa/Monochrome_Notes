@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Config;
 using System.IO;
 
@@ -120,6 +121,46 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
             Application.Quit();
         }
     }
+
+    public static void SetColors(Image[] _images, int key) {
+        foreach (var _item in _images) {
+            _item.color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
+        }
+
+        _images[key].color = new Color(0.38f, 0.38f, 0.38f, 1);
+    }
+
+
+    public static MyInput myButton = new MyInput();
+    public static E VarticalSelect<E>(E e,E _before,E _next) {
+        if (myButton.GetButtonDown("Button2_3")) {
+            if (Input.GetAxisRaw("Button2_3") > 0) {
+                e = _before;
+            }
+            if (Input.GetAxisRaw("Button2_3") < 0) {
+                e = _next;
+            }
+        }
+        return e;
+    }
+
+    public static E HorizontalSelect<E>(E e, E _before, E _next) {
+        if (myButton.GetButtonDown("Button2_2")) {
+            if (Input.GetAxisRaw("Button2_2") < 0) {
+                e = _before;
+            }
+            if (Input.GetAxisRaw("Button2_2") > 0) {
+                e = _next;
+            }
+        }
+        return e;
+    }
+
+
+
+
+
+
 
     private void CSVReader() {
         csvFile = Resources.Load("CSV/" + "Monochrome_Note_MusicList") as TextAsset;

@@ -13,10 +13,10 @@ public class MusicSelectManager : MonoBehaviour {
 
     private int selecter = 0;
     private MyInput Button2 = new MyInput();
-    private MyInput Button2_2 = new MyInput();
 
     [SerializeField]
     private AudioClip[] musics;
+    private AudioSource audioSource;
 
     [SerializeField] private Image[] musicUI;
     [SerializeField] private Image[] levelUI;
@@ -58,6 +58,13 @@ public class MusicSelectManager : MonoBehaviour {
 
     private LevelSelect currentLevel = LevelSelect.Normal;
 
+    private float[] sabiTIme = new float[]{44,0,80};
+    private int[][] level = new int[][]
+    {
+        new int[] { 4,6,10 },
+        new int[] { 1,2,3 },
+        new int[] { 6,9,13 },
+    };
     
     // Use this for initialization
     void Start() {
@@ -69,11 +76,13 @@ public class MusicSelectManager : MonoBehaviour {
         notesSpeedSlider.value = GameMaster.NoteSpeed;
         ajustSlider.value = GameMaster.Ajust;
         musicVolumeSlider.value = GameMaster.MusicVolume;
-        seVolumeSlider.value = GameMaster.SEVolume; ;
+        seVolumeSlider.value = GameMaster.SEVolume;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update() {
+
         switch (currentMode) {
             //キャラクター選択
             case ModeSelect.Charactor:
@@ -94,6 +103,9 @@ public class MusicSelectManager : MonoBehaviour {
                     panelAnimator.SetBool(musicPanel, true);
                     //曲選択へ進む
                     currentMode = ModeSelect.Music;
+                    audioSource.clip = musics[selecter];
+                    audioSource.time = sabiTIme[selecter];
+                    audioSource.Play();
                 }
 
                 //タイトルに戻る
@@ -110,21 +122,26 @@ public class MusicSelectManager : MonoBehaviour {
                     charactorAnimator.SetBool(musicPanel, false);
                     panelAnimator.SetBool(musicPanel, false);
                     currentMode = ModeSelect.Charactor;
+                    audioSource.time = sabiTIme[selecter];
                 }
 
                 //曲選択
                 //selecterは曲の配列のindex
                 if (Button2.GetButtonDown("Button2_3")) {
                     selecter += -(int)Input.GetAxisRaw("Button2_3");
+                    //配列の範囲を超えないように制限
+                    if (selecter < 0) {
+                        selecter = musicUI.Length - 1;
+                    }
+                    if (selecter > musicUI.Length - 1) {
+                        selecter = 0;
+                    }
+                    audioSource.clip = musics[selecter];
+                    audioSource.time = sabiTIme[selecter];
+                    audioSource.Play();
                 }
 
-                //配列の範囲を超えないように制限
-                if (selecter < 0) {
-                    selecter = 0;
-                }
-                if (selecter > musicUI.Length - 1) {
-                    selecter = musicUI.Length - 1;
-                }
+                
 
                 //全ての曲の背景を一括で暗くする
                 foreach (var ui in musicUI) {
@@ -132,6 +149,9 @@ public class MusicSelectManager : MonoBehaviour {
                 }
                 //選んだ曲の背景を明るくする
                 musicUI[selecter].color = new Color(0.38f, 0.38f, 0.38f, 1f);
+                for (int i=0;i<levelUI.Length;i++) {
+                    levelUI[i].GetComponentInChildren<Text>().text = level[selecter][i].ToString();
+                }
 
 
 
@@ -152,16 +172,16 @@ public class MusicSelectManager : MonoBehaviour {
 
                 switch (currentLevel) {
                     case LevelSelect.Esey:
-                        NextLevel(LevelSelect.Esey, LevelSelect.Normal);
-                        LevelUIColler(LevelSelect.Esey);
+                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel,LevelSelect.Hard,LevelSelect.Normal);
+                        GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     case LevelSelect.Normal:
-                        NextLevel(LevelSelect.Esey, LevelSelect.Hard);
-                        LevelUIColler(LevelSelect.Normal);
+                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Esey, LevelSelect.Hard);
+                        GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     case LevelSelect.Hard:
-                        NextLevel(LevelSelect.Normal, LevelSelect.Hard);
-                        LevelUIColler(LevelSelect.Hard);
+                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Normal, LevelSelect.Esey);
+                        GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     default:
                         break;
@@ -187,30 +207,29 @@ public class MusicSelectManager : MonoBehaviour {
                     panelAnimator.SetBool(setting, false);
                     settingAnimator.SetBool(setting, false);
                 }
-
-
+                
 
                 //設定項目の選択
                 switch (currentSetting) {
                     case SettingSelect.NotesSpeed:
-                        NextSetting(SettingSelect.NotesSpeed, SettingSelect.TimingAjust);
-                        SettingUIColler(SettingSelect.NotesSpeed);
+                        currentSetting = GameMaster.VarticalSelect<SettingSelect>(currentSetting,SettingSelect.MusicStart,SettingSelect.TimingAjust);
+                        GameMaster.SetColors(SettingsUI, (int)currentSetting);
                         break;
                     case SettingSelect.TimingAjust:
-                        NextSetting(SettingSelect.NotesSpeed, SettingSelect.MusicVolume);
-                        SettingUIColler(SettingSelect.TimingAjust);
+                        currentSetting = GameMaster.VarticalSelect<SettingSelect>(currentSetting, SettingSelect.NotesSpeed, SettingSelect.MusicVolume);
+                        GameMaster.SetColors(SettingsUI, (int)currentSetting);
                         break;
                     case SettingSelect.MusicVolume:
-                        NextSetting(SettingSelect.TimingAjust, SettingSelect.SEVolume);
-                        SettingUIColler(SettingSelect.MusicVolume);
+                        currentSetting = GameMaster.VarticalSelect<SettingSelect>(currentSetting, SettingSelect.TimingAjust, SettingSelect.SEVolume);
+                        GameMaster.SetColors(SettingsUI, (int)currentSetting);
                         break;
                     case SettingSelect.SEVolume:
-                        NextSetting(SettingSelect.MusicVolume, SettingSelect.MusicStart);
-                        SettingUIColler(SettingSelect.SEVolume);
+                        currentSetting = GameMaster.VarticalSelect<SettingSelect>(currentSetting, SettingSelect.MusicVolume, SettingSelect.MusicStart);
+                        GameMaster.SetColors(SettingsUI, (int)currentSetting);
                         break;
                     case SettingSelect.MusicStart:
-                        NextSetting(SettingSelect.SEVolume, SettingSelect.MusicStart);
-                        SettingUIColler(SettingSelect.MusicStart);
+                        currentSetting = GameMaster.VarticalSelect<SettingSelect>(currentSetting, SettingSelect.SEVolume, SettingSelect.NotesSpeed);
+                        GameMaster.SetColors(SettingsUI, (int)currentSetting);
                         //メインシーンへ進む
                         if (Input.GetButtonDown("Return")) {
                             //選んだ設定をGameMasterに反映する
@@ -227,7 +246,7 @@ public class MusicSelectManager : MonoBehaviour {
                         break;
                 }
 
-                if (Button2_2.GetButtonDown("Button2_2")) {
+                if (Button2.GetButtonDown("Button2_2")) {
                     switch (currentSetting) {
                         case SettingSelect.NotesSpeed:
                             notesSpeedSlider.value += 0.5f * (int)Input.GetAxisRaw("Button2_2");
@@ -253,49 +272,5 @@ public class MusicSelectManager : MonoBehaviour {
                 GameMaster.SceneChanger(SceneName.Title);
                 break;
         }
-    }
-
-    private void NextLevel(LevelSelect _before, LevelSelect _next) {
-        if (Button2_2.GetButtonDown("Button2_2")) {
-            if (Input.GetAxisRaw("Button2_2") < 0) {
-                currentLevel = _before;
-            }
-            if (Input.GetAxisRaw("Button2_2") > 0) {
-                currentLevel = _next;
-            }
-        }
-
-    }
-    private void LevelUIColler(LevelSelect _select) {
-        //全ての設定項目の背景を一括で暗くする
-        foreach (var ui in levelUI) {
-            ui.color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
-        }
-
-        //選んだ設定項目の背景を明るくする
-        levelUI[(int)_select].color = new Color(0.38f, 0.38f, 0.38f, 1f);
-    }
-
-
-    private void SettingUIColler(SettingSelect _select) {
-        //全ての設定項目の背景を一括で暗くする
-        foreach (var ui in SettingsUI) {
-            ui.color = new Color(0.38f, 0.38f, 0.38f, 0.15f);
-        }
-        
-        //選んだ設定項目の背景を明るくする
-        SettingsUI[(int)_select].color = new Color(0.38f, 0.38f, 0.38f, 1f);
-    }
-
-    private void NextSetting(SettingSelect _before,SettingSelect _next) {
-        if (Button2.GetButtonDown("Button2_3")) {
-            if (Input.GetAxisRaw("Button2_3") > 0 ) {
-                currentSetting = _before;
-            }
-            if (Input.GetAxisRaw("Button2_3") < 0) {
-                currentSetting = _next;
-            }
-        }
-
     }
 }

@@ -190,7 +190,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 0
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -364,7 +364,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 2
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -453,7 +453,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 2
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -635,7 +635,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 200}
+  m_SizeDelta: {x: 1920, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &307620697
 MonoBehaviour:
@@ -1077,7 +1077,7 @@ GameObject:
   - component: {fileID: 572450540}
   - component: {fileID: 572450539}
   m_Layer: 5
-  m_Name: Next_Resume
+  m_Name: Pouse_Resume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1212,7 +1212,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 3
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -1456,7 +1456,7 @@ GameObject:
   - component: {fileID: 688256124}
   - component: {fileID: 688256123}
   m_Layer: 5
-  m_Name: Next_Retry
+  m_Name: Pouse_Retry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1659,7 +1659,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 0
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -1779,7 +1779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aeaf69e8d5f24042b63815fbfd9614a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteSpeed: 15
+  noteSpeed: 10
   Fast_Slow: 0
   noteObj: {fileID: 1179597283970956, guid: 5852cafbe9d518c41a7448f58ae57a0e, type: 2}
   holdNoteObj: {fileID: 1482161412274496, guid: 9e00cf2eeb728f94d8e5ae9aed1302c4,
@@ -1834,6 +1834,10 @@ MonoBehaviour:
   - {fileID: 1115739242}
   - {fileID: 1687703936}
   - {fileID: 264259272}
+  PouseButton:
+  - {fileID: 688256123}
+  - {fileID: 572450539}
+  - {fileID: 1856779293}
   comboAnimator: {fileID: 1180911728}
 --- !u!4 &819850954
 Transform:
@@ -2103,7 +2107,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 2
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -3131,7 +3135,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 0
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -3475,7 +3479,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 3
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -4407,7 +4411,7 @@ MonoBehaviour:
     m_MinSize: 10
     m_MaxSize: 300
     m_Alignment: 4
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -7941,7 +7945,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 5
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -8630,7 +8634,7 @@ GameObject:
   - component: {fileID: 1856779294}
   - component: {fileID: 1856779293}
   m_Layer: 5
-  m_Name: Next_MusicSelect
+  m_Name: Pouse_MusicSelect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9082,7 +9086,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 2
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -9239,7 +9243,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 0
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
@@ -9414,7 +9418,7 @@ MonoBehaviour:
     m_MinSize: 3
     m_MaxSize: 102
     m_Alignment: 5
-    m_AlignByGeometry: 0
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
