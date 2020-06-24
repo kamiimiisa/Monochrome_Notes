@@ -87,11 +87,11 @@ public class MusicSelectManager : MonoBehaviour {
             //キャラクター選択
             case ModeSelect.Charactor:
                 //キャラクターを選択する処理
-                if (Button2.GetButtonDown("Button2_2")) {
-                    if (Input.GetAxisRaw("Button2_2") < 0) {
+                if (Button2.GetButtonDown("Button2_Horizontal")) {
+                    if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
                         charactorAnimator.SetInteger(charactor__Num, 0);
                     }
-                    if (Input.GetAxisRaw("Button2_2") > 0) {
+                    if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
                         charactorAnimator.SetInteger(charactor__Num, 1);
                     }
                 }
@@ -127,8 +127,8 @@ public class MusicSelectManager : MonoBehaviour {
 
                 //曲選択
                 //selecterは曲の配列のindex
-                if (Button2.GetButtonDown("Button2_3")) {
-                    selecter += -(int)Input.GetAxisRaw("Button2_3");
+                if (Button2.GetButtonDown("Button2_Vartical")) {
+                    selecter += -(int)Input.GetAxisRaw("Button2_Vartical");
                     //配列の範囲を超えないように制限
                     if (selecter < 0) {
                         selecter = musicUI.Length - 1;
@@ -246,19 +246,19 @@ public class MusicSelectManager : MonoBehaviour {
                         break;
                 }
 
-                if (Button2.GetButtonDown("Button2_2")) {
+                if (Button2.GetButtonDown("Button2_Horizontal")) {
                     switch (currentSetting) {
                         case SettingSelect.NotesSpeed:
-                            notesSpeedSlider.value += 0.5f * (int)Input.GetAxisRaw("Button2_2");
+                            notesSpeedSlider.value += 0.5f * (int)Input.GetAxisRaw("Button2_Horizontal");
                             break;
                         case SettingSelect.TimingAjust:
-                            ajustSlider.value += (int)Input.GetAxisRaw("Button2_2");
+                            ajustSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
                             break;
                         case SettingSelect.MusicVolume:
-                            musicVolumeSlider.value += (int)Input.GetAxisRaw("Button2_2");
+                            musicVolumeSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
                             break;
                         case SettingSelect.SEVolume:
-                            seVolumeSlider.value += (int)Input.GetAxisRaw("Button2_2");
+                            seVolumeSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
                             break;
                         default:
                             break;

@@ -133,11 +133,11 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
 
     public static MyInput myButton = new MyInput();
     public static E VarticalSelect<E>(E e,E _before,E _next) {
-        if (myButton.GetButtonDown("Button2_3")) {
-            if (Input.GetAxisRaw("Button2_3") > 0) {
+        if (myButton.GetButtonDown("Button2_Vartical")) {
+            if (Input.GetAxisRaw("Button2_Vartical") > 0) {
                 e = _before;
             }
-            if (Input.GetAxisRaw("Button2_3") < 0) {
+            if (Input.GetAxisRaw("Button2_Vartical") < 0) {
                 e = _next;
             }
         }
@@ -145,11 +145,11 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
     }
 
     public static E HorizontalSelect<E>(E e, E _before, E _next) {
-        if (myButton.GetButtonDown("Button2_2")) {
-            if (Input.GetAxisRaw("Button2_2") < 0) {
+        if (myButton.GetButtonDown("Button2_Horizontal")) {
+            if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
                 e = _before;
             }
-            if (Input.GetAxisRaw("Button2_2") > 0) {
+            if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
                 e = _next;
             }
         }

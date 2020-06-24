@@ -1780,7 +1780,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noteSpeed: 10
-  Fast_Slow: 0
   noteObj: {fileID: 1179597283970956, guid: 5852cafbe9d518c41a7448f58ae57a0e, type: 2}
   holdNoteObj: {fileID: 1482161412274496, guid: 9e00cf2eeb728f94d8e5ae9aed1302c4,
     type: 2}
@@ -1788,7 +1787,7 @@ MonoBehaviour:
     type: 2}
   holdEmptyObj: {fileID: 1661288697892734, guid: c311862f37a6ce4448eeb5132406142c,
     type: 2}
-  breakNotesObj: {fileID: 1551218087251718, guid: 8fffbf9caf8484a419d6e260b803ddc8,
+  breakNotesObj: {fileID: 1538775118714642, guid: 8fffbf9caf8484a419d6e260b803ddc8,
     type: 2}
   judgeLineObj:
   - {fileID: 997066590}
