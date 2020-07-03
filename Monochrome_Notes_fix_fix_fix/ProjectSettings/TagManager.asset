@@ -50,6 +50,9 @@ TagManager:
   - name: HoldNotes
     uniqueID: 1769376965
     locked: 0
+  - name: ExTap
+    uniqueID: 3595275883
+    locked: 0
   - name: Notes
     uniqueID: 1120924359
     locked: 0

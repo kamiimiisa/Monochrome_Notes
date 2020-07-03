@@ -4,7 +4,10 @@
         Line2,
         Line3,
         Line4,
-        Line5
+        Line5,
+        Line6,
+        Line7,
+        Line8,
     }
 
     public enum NoteType {
@@ -12,10 +15,7 @@
         HoldStart,
         Hold,
         HoldEnd,
-        Break,
-        BreakStart,
-        BreakHold,
-        BreakHoldEnd,
+        ExTap,
     }
 
     public enum Judge {
@@ -25,10 +25,7 @@
         HoldStart,
         Hold,
         HoldEnd,
-        Break,
-        BreakStart,
-        BreakHold,
-        BreakHoldEnd,
+        ExTap,
     }
 
     public enum Sound {

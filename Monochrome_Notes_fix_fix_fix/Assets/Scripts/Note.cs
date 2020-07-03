@@ -64,7 +64,7 @@ namespace Monochrome_Notes {
 
         private ParticleSystemRenderer effectRenderer;
         private ParticleSystem effect;
-        private Transform effPos;
+        [SerializeField] private Transform effPos;
         [SerializeField] private Material[] materials;
         public enum Eff {
             Pafect = 0,
@@ -75,7 +75,6 @@ namespace Monochrome_Notes {
         private void Start() {
             effect = GetComponentInChildren<ParticleSystem>();
             effectRenderer = effect.GetComponent<ParticleSystemRenderer>();
-            effPos = GetComponentInChildren<Transform>();
         }
 
         public void NotesEff(Eff _eff , Vector3 _judgeLinePos) {

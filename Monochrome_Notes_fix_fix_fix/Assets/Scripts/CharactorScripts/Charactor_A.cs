@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Charactor_A : Charactor {
 
-    override public void Skill() {
+    public override void Skill() {
 
     }
 }

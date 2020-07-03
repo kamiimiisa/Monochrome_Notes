@@ -14,7 +14,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         set { musicName = value; }
     }
 
-    private static string musicLevel = "Normal";
+    private static string musicLevel = "Hard";
     public static string MusicLevel {
         get { return musicLevel; }
         set { musicLevel = value; }
@@ -50,7 +50,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         set { missNum = value; }
     }
 
-    private static float noteSpeed = 13f;
+    private static float noteSpeed = 10f;
     public static float NoteSpeed {
         get { return noteSpeed ; }
         set { noteSpeed = value; }
