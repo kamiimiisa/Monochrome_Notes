@@ -12,6 +12,7 @@ public class MusicSelectManager : MonoBehaviour {
     [SerializeField] private Animator settingAnimator;
 
     private int selecter = 0;
+    private float interval = 0;
     private MyInput Button2 = new MyInput();
 
     [SerializeField]
@@ -247,6 +248,7 @@ public class MusicSelectManager : MonoBehaviour {
                         break;
                 }
 
+                //ボタン短押し
                 if (Button2.GetButtonDown("Button2_Horizontal")) {
                     switch (currentSetting) {
                         case SettingSelect.NotesSpeed:
@@ -264,6 +266,33 @@ public class MusicSelectManager : MonoBehaviour {
                         default:
                             break;
                     }
+                }
+
+                //ボタン長押し
+                if (Input.GetAxisRaw("Button2_Horizontal") != 0) {
+                    
+                    interval += GameMaster.DeltaTime;
+                    if (interval > 0.15f) {
+                        switch (currentSetting) {
+                            case SettingSelect.NotesSpeed:
+                                notesSpeedSlider.value += 0.5f * (int)Input.GetAxisRaw("Button2_Horizontal");
+                                break;
+                            case SettingSelect.TimingAjust:
+                                ajustSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
+                                break;
+                            case SettingSelect.MusicVolume:
+                                musicVolumeSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
+                                break;
+                            case SettingSelect.SEVolume:
+                                seVolumeSlider.value += (int)Input.GetAxisRaw("Button2_Horizontal");
+                                break;
+                            default:
+                                break;
+                        }
+                        interval = 0;
+                    }
+                } else {
+                    interval = 0;
                 }
                 break;
 

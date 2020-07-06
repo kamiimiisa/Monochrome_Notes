@@ -132,6 +132,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
 
 
     public static MyInput myButton = new MyInput();
+    public static float interval = 0;
     public static E VarticalSelect<E>(E e,E _before,E _next) {
         if (myButton.GetButtonDown("Button2_Vartical")) {
             if (Input.GetAxisRaw("Button2_Vartical") > 0) {
@@ -139,6 +140,23 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
             }
             if (Input.GetAxisRaw("Button2_Vartical") < 0) {
                 e = _next;
+            }
+        }
+
+        if (Input.GetAxisRaw("Button2_Vartical") != 0) {
+            interval += DeltaTime;
+            if (interval > 0.15f) {
+                if (Input.GetAxisRaw("Button2_Vartical") > 0) {
+                    e = _before;
+                }
+                if (Input.GetAxisRaw("Button2_Vartical") < 0) {
+                    e = _next;
+                }
+                interval = 0;
+            }
+        } else {
+            if (Input.GetAxisRaw("Button2_Horizontal") == 0) {
+                interval = 0;
             }
         }
         return e;
@@ -151,6 +169,23 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
             }
             if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
                 e = _next;
+            }
+        }
+
+        if (Input.GetAxisRaw("Button2_Horizontal") != 0) {
+            interval += DeltaTime;
+            if (interval > 0.15f) {
+                if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
+                    e = _before;
+                }
+                if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
+                    e = _next;
+                }
+                interval = 0;
+            }
+        } else {
+            if (Input.GetAxisRaw("Button2_Vartical") == 0) {
+                interval = 0;
             }
         }
         return e;
