@@ -89,17 +89,16 @@ public class MainManager : MonoBehaviour {
         {Judge.ExTap,2000},
     };
 
-    //private static Dictionary<Judge, Color> JUDGE_COLOR = new Dictionary<Judge, Color>()
-    //{
-    //    {Judge.Pafect,Color.red},
-    //    {Judge.Graet,Color.yellow},
-    //    {Judge.Miss,Color.black},//shaderがParticles/Additive(Soft)の為,黒は表示されない
-    //    {Judge.Hold,Color.red},
-    //    {Judge.HoldStart,Color.red},
-    //    {Judge.HoldEnd,Color.red},
-    //    {Judge.Break,Color.red},
-    //    {Judge.BreakHoldEnd,Color.red},
-    //};
+    private static Dictionary<Judge, Color> JUDGE_COLOR = new Dictionary<Judge, Color>()
+    {
+        {Judge.Pafect,Color.red},
+        {Judge.Graet,Color.yellow},
+        {Judge.Miss,Color.black},//shaderがParticles/Additive(Soft)の為,黒は表示されない
+        {Judge.Hold,Color.red},
+        {Judge.HoldStart,Color.red},
+        {Judge.HoldEnd,Color.red},
+        {Judge.ExTap,Color.red},
+    };
 
     [SerializeField] private List<AudioClip> bgmList;
     [SerializeField] private List<AudioClip> seList;
@@ -539,6 +538,7 @@ public class MainManager : MonoBehaviour {
 
         score += JUDGE_SCORE[judge];
         scoreText.text = "Score : " + score.ToString("D7");
+        tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 250);
         note.NotesEff(judgeEff, judgeLineObj[(int)_line].transform.position);
 
         //tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 300f);
@@ -594,6 +594,7 @@ public class MainManager : MonoBehaviour {
         scoreText.text = "Score : " + score.ToString("D7");
         ++combo;
 
+        tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge],125);
         _note.NotesEff(Note.Eff.Pafect,judgeLineObj[(int)_line].transform.position);
 
         if (maxCombo < combo) {
