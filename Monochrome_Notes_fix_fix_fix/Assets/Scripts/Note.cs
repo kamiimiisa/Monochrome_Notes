@@ -67,9 +67,10 @@ namespace Monochrome_Notes {
         [SerializeField] private Transform effPos;
         [SerializeField] private Material[] materials;
         public enum Eff {
-            Pafect = 0,
-            Great = 1,
-            Miss = 2,
+            Pafect,
+            Great,
+            Miss,
+            Safe,
         }
 
         private void Start() {

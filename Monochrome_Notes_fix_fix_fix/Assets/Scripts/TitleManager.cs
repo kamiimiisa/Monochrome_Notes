@@ -6,9 +6,13 @@ using Config;
 
 public class TitleManager : MonoBehaviour {
 
+    
+    [SerializeField] GameObject[] keyboard;
+    [SerializeField] GameObject[] joystick;
+
     // Use this for initialization
     void Start() {
-
+        GameMaster.UiChangerConst(keyboard, joystick);
     }
 
     // Update is called once per frame
@@ -20,6 +24,9 @@ public class TitleManager : MonoBehaviour {
         if (Input.GetButtonDown("Cancel")) {
             GameMaster.SceneChanger(SceneName.Exit);
         }
+
+        GameMaster.UiChanger(keyboard, joystick);
     }
+    
 }
 

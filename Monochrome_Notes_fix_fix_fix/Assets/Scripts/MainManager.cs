@@ -10,7 +10,7 @@ using Monochrome_Notes;
 
 public class MainManager : MonoBehaviour {
     private float carrentGameTime = 0;
-    [SerializeField][Range(1,20)]private int noteSpeed = 5;
+    [SerializeField] [Range(1, 20)] private int noteSpeed = 5;
     private readonly float DELAY_TIME = 4.5f;
     private string musicName;
     private string musicLevel;
@@ -24,19 +24,26 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private GameObject holdEmptyObj;
     [SerializeField] private GameObject breakNotesObj;
     [SerializeField] private GameObject[] judgeLineObj;
-    
+    [SerializeField] private GameObject[] joystickButton;
+    [SerializeField] private GameObject[] keyboradButton;
+
     [SerializeField] private TextMesh scoreText;
-    private int score = 0;
+    private float score = 0;
     [SerializeField] private Text comboText;
+    [SerializeField] private Text comboBonusText;
     private int combo;
     private int maxCombo;
     private int parfectNum;
     private int greatNum;
     private int missNum;
+    private static int safeNum;
+    public static int SafeNum {
+        set { safeNum = value; }
+    }
     private int noteCount = 0;
-    
+    private Character character;
+
     [SerializeField] private Image gauge;
-    private int maxScore = 0;
 
     [SerializeField] private TapEffect[] tapEffects;
 
@@ -57,11 +64,11 @@ public class MainManager : MonoBehaviour {
     /// ライン毎にノーツの情報を持つDictionary
     /// </summary>
     private static Dictionary<Line, List<Note>> LINE_NOTE_LIST = new Dictionary<Line, List<Note>>();
-    
+
     /// <summary>
     /// ライン毎にノーツが残っているかを調べるindex
     /// </summary>
-    private static  Dictionary<Line, int> CURRENT_NOTES = new Dictionary<Line, int>();
+    private static Dictionary<Line, int> CURRENT_NOTES = new Dictionary<Line, int>();
 
     /// <summary>
     /// それぞれのラインの座標
@@ -103,12 +110,13 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private List<AudioClip> bgmList;
     [SerializeField] private List<AudioClip> seList;
     private AudioSource MusicSource;
-    [SerializeField] private AudioSource[] SESource;
+    [SerializeField] private AudioSource SESource;
 
     [SerializeField] private TextMesh musicNameTextMesh;
     //[SerializeField] private Text musicNameText;
-    
+
     [SerializeField] private GameObject ResultCanvas;
+    [SerializeField] private Text resultMusicName;
     [SerializeField] private Text testResult;
     [SerializeField] private Text fullComboText;
     [SerializeField] private Text maxComboText;
@@ -120,6 +128,7 @@ public class MainManager : MonoBehaviour {
     [SerializeField] private Image parfectGauge;
     [SerializeField] private Image greatGauge;
     [SerializeField] private Image missGauge;
+    [SerializeField] private GameObject resultCharacterImage;
 
 
     [SerializeField] private GameObject PouseCanvas;
@@ -127,11 +136,11 @@ public class MainManager : MonoBehaviour {
 
     [SerializeField] private Image[] Nexts = new Image[2];
     [SerializeField] private Image[] PouseButton;
-    private SceneName nextScene = SceneName.MusicSelect;
+    private SceneName nextScene = SceneName.Main;
+    private ResultStatus currentResultStatus = ResultStatus.MusicSelect;
     private PouseStatus currentPouseStatus = PouseStatus.Resume;
 
     [SerializeField] private Animator comboAnimator;
-
 
     private void Awake() {
         NOTES_LIST = new List<Note.NotePos>();
@@ -142,10 +151,13 @@ public class MainManager : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        GameMaster.UiChangerConst(keyboradButton, joystickButton);
+
         noteSpeed = (int)GameMaster.NoteSpeed * 3;
         musicName = GameMaster.MusicName;
         musicLevel = GameMaster.MusicLevel;
         carrentGameTime = 0;
+        safeNum = 0;
 
         //Jsonから譜面をもらってきてEditDate,Noteクラスとして復元
         string json = Resources.Load<TextAsset>(musicLevel + "/" + musicName).ToString();
@@ -161,19 +173,24 @@ public class MainManager : MonoBehaviour {
             LINE_POSITION.Add(line,judgeLineObj[(int)line].transform.position.x);
         }
 
+        //曲名の反映
         musicNameTextMesh.text = musicName;
-        //bpmText.text = "BPM : " + editData.BPM.ToString();
-        //speedText.text = "Speed : "+ noteSpeed.ToString();
+        resultMusicName.text = musicName;
 
-        foreach (var source in SESource) {
-            source.clip = seList[0];
-        }
+        //キャラクターの反映
+        character = GameMaster.Character;
+        resultCharacterImage.GetComponent<Image>().sprite = character.CharacterSprite;
+        character.Skill();
+        
+        SESource.clip = seList[0];
         DataFormat();
         Initialize();
     }
 
     // Update is called once per frame
     void Update() {
+        GameMaster.UiChanger(keyboradButton, joystickButton);
+
         //曲が流れ始めるまでに一拍置く処理
         if (carrentGameTime < DELAY_TIME) {
             carrentGameTime += GameMaster.DeltaTime;
@@ -195,9 +212,9 @@ public class MainManager : MonoBehaviour {
         JudgeNotesMiss();
         ComboTextUpdate();
 
-        if (MusicSource.time == MusicSource.clip.length && !musicEnd) {
+        if (MusicSource.time >= MusicSource.clip.length && !musicEnd) {
             string resultT = "D";
-            float resultF = (float)score / maxScore;
+            float resultF = (float)(parfectNum + greatNum) / noteCount;
             if (resultF <= 0.7f) {
                 resultT = "C";
             } else if (resultF <= 0.85f) {
@@ -232,18 +249,21 @@ public class MainManager : MonoBehaviour {
             greatGauge.fillAmount = Mathf.MoveTowards(greatGauge.fillAmount, (float)greatNum / noteCount, 1 * GameMaster.DeltaTime);
             missGauge.fillAmount = Mathf.MoveTowards(missGauge.fillAmount, (float)missNum / noteCount, 1 * GameMaster.DeltaTime);
             
-            switch (nextScene) {
-                case SceneName.Main:
-                    GameMaster.SetColors(Nexts, (int)nextScene);
-                    nextScene = GameMaster.HorizontalSelect<SceneName>(nextScene, SceneName.Title, SceneName.MusicSelect);
+            switch (currentResultStatus) {
+                case ResultStatus.Retry:
+                    GameMaster.SetColors(Nexts, (int)currentResultStatus);
+                    nextScene = SceneName.Main;
+                    currentResultStatus = GameMaster.HorizontalSelect<ResultStatus>(currentResultStatus, ResultStatus.Title, ResultStatus.MusicSelect);
                     break;
-                case SceneName.MusicSelect:
-                    GameMaster.SetColors(Nexts, (int)nextScene);
-                    nextScene = GameMaster.HorizontalSelect<SceneName>(nextScene, SceneName.Main, SceneName.Title);
+                case ResultStatus.MusicSelect:
+                    GameMaster.SetColors(Nexts, (int)currentResultStatus);
+                    nextScene = SceneName.MusicSelect;
+                    currentResultStatus = GameMaster.HorizontalSelect<ResultStatus>(currentResultStatus, ResultStatus.Retry, ResultStatus.Title);
                     break;
-                case SceneName.Title:
-                    GameMaster.SetColors(Nexts, (int)nextScene);
-                    nextScene = GameMaster.HorizontalSelect<SceneName>(nextScene,SceneName.MusicSelect,SceneName.Main);
+                case ResultStatus.Title:
+                    GameMaster.SetColors(Nexts, (int)currentResultStatus);
+                    nextScene = SceneName.Title;
+                    currentResultStatus = GameMaster.HorizontalSelect<ResultStatus>(currentResultStatus, ResultStatus.MusicSelect, ResultStatus.Retry);
                     break;
                 default:
                     break;
@@ -254,33 +274,33 @@ public class MainManager : MonoBehaviour {
         } else {
             if (canPlay) {
                 if (Input.GetButtonDown("Button1")) {
-                    SESource[0].Play();
+                    SESource.Play();
                     JudgeNotes(Line.Line1);
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button2") || Button2_Horizontal.GetButtonDown("Button2_Horizontal") || Button2_Vartical.GetButtonDown("Button2_Vartical")) {
-                    SESource[0].Play();
+                    SESource.Play();
                     JudgeNotes(Line.Line2);
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button3")) {
-                    SESource[0].Play();
+                    SESource.Play();
                     JudgeNotes(Line.Line3);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line7);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button4")) {
-                    SESource[0].Play();
+                    SESource.Play();
                     JudgeNotes(Line.Line4);
                     JudgeNotes(Line.Line7);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button5")) {
-                    SESource[0].Play();
+                    SESource.Play();
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line7);
@@ -315,7 +335,7 @@ public class MainManager : MonoBehaviour {
         Pouse();
 
         //クリアゲージを更新する処理
-        gauge.fillAmount = (float)score / maxScore;
+        gauge.fillAmount = (float)(parfectNum + greatNum) / noteCount;
     }
 
     private void DataFormat() {
@@ -409,25 +429,20 @@ public class MainManager : MonoBehaviour {
             
             //ホールドノーツの生成
             if (note.notePos.noteType == NoteType.HoldStart) {
-                Judge _holdStart = Judge.HoldStart;
-                maxScore += JUDGE_SCORE[_holdStart];
                 noteCount++;
                 var _holdEnd = note.gameObject;
                 foreach (var _data in data.noteList) {
                     GameObject _obj;
                     var _note = new Note();
                     var _notePos = new Note.NotePos();
-                    Judge _judge;
                     if (_data.notePos.noteType == NoteType.Hold) {
                         _obj = Instantiate(holdEmptyObj, transform);
                         _note = _obj.GetComponent<Note>();
                         _notePos = new Note.NotePos(_data.notePos.notesTimeg, _data.notePos.lineNum, NoteType.Hold);
-                        _judge = Judge.Hold;
                     } else {
                         _obj = Instantiate(holdNoteTapObj, transform);
                         _note = _obj.GetComponent<Note>();
                         _notePos = new Note.NotePos(_data.notePos.notesTimeg, _data.notePos.lineNum, NoteType.HoldEnd);
-                        _judge = Judge.HoldEnd;
                         var _spriteRenderer = _obj.GetComponent<SpriteRenderer>();
                         var _spritSize = spriteRenderer.size;
                         _spritSize.x = spriteX;
@@ -446,7 +461,6 @@ public class MainManager : MonoBehaviour {
                         _holdEnd = _obj;
                     }
                     LINE_NOTE_LIST[_note.notePos.lineNum].Add(_note);
-                    maxScore += JUDGE_SCORE[_judge];
                     noteCount++;
                 }
                 if (_holdEnd.GetComponent<Note>().notePos.noteType == NoteType.HoldEnd) {
@@ -462,11 +476,6 @@ public class MainManager : MonoBehaviour {
                 }
 
             } else {
-                if (note.notePos.noteType == NoteType.ExTap) {
-                    maxScore += JUDGE_SCORE[Judge.ExTap];
-                } else {
-                    maxScore += JUDGE_SCORE[Judge.Pafect];
-                }
                 noteCount++;
             }
         }
@@ -493,7 +502,7 @@ public class MainManager : MonoBehaviour {
         float diff = Mathf.Abs(MusicSource.time - note.notePos.notesTimeg);
         if (diff > JUDGE_RANGE[Judge.Miss]) {
             return;
-        }
+        }        
 
         var judge = Judge.Miss;
         var judgeEff = Note.Eff.Miss;
@@ -509,17 +518,13 @@ public class MainManager : MonoBehaviour {
                     judge = Judge.Graet;
                     judgeEff = Note.Eff.Great;
                     ++greatNum;
-                } else if (diff < JUDGE_RANGE[Judge.Miss]) {
-                    ++missNum;
-                }
+                } 
                 break;
             case NoteType.HoldStart:
                 if (diff < JUDGE_RANGE[Judge.HoldStart]) {
                     judge = Judge.HoldStart;
                     judgeEff = Note.Eff.Pafect;
                     ++parfectNum;
-                } else if (diff < JUDGE_RANGE[Judge.Miss]) {
-                    ++missNum;
                 }
                 break;
             case NoteType.Hold:
@@ -536,19 +541,29 @@ public class MainManager : MonoBehaviour {
                 break;
         }
 
-        score += JUDGE_SCORE[judge];
-        scoreText.text = "Score : " + score.ToString("D7");
+        if (judge == Judge.Miss) {
+            ++missNum;
+            if (safeNum > 0) {
+                judgeEff = Note.Eff.Safe;
+            }
+        }
+        
+        score += JUDGE_SCORE[judge] * ComboBonus(combo);
+        scoreText.text = "Score : " + ((int)score).ToString("D7");
         tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 250);
         note.NotesEff(judgeEff, judgeLineObj[(int)_line].transform.position);
-
-        //tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 300f);
-
+        
         if (judge != Judge.Miss) {
             ++combo;
-            
         } else {
-            combo = 0;
+            if(safeNum > 0) {
+                safeNum--;
+            } else {
+                combo = 0;
+                comboBonusText.gameObject.SetActive(false);
+            }
         }
+
         if (maxCombo < combo) {
             maxCombo = combo;
         }
@@ -584,14 +599,14 @@ public class MainManager : MonoBehaviour {
         if (_note.notePos.noteType == NoteType.Hold || _note.notePos.noteType == NoteType.HoldEnd) {
             if (diff < JUDGE_RANGE[Judge.Hold]) {
                 if (_note.notePos.noteType == NoteType.HoldEnd) {
-                    SESource[0].Play();
+                    SESource.Play();
                     judge = Judge.HoldEnd;
                 }
                 ++parfectNum;
             }
         }
-        score += JUDGE_SCORE[judge];
-        scoreText.text = "Score : " + score.ToString("D7");
+        score += JUDGE_SCORE[judge] * ComboBonus(combo);
+        scoreText.text = "Score : " + ((int)score).ToString("D7");
         ++combo;
 
         tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge],125);
@@ -625,13 +640,20 @@ public class MainManager : MonoBehaviour {
                 missTime = JUDGE_RANGE[Judge.Hold];
             }
             if (diff > missTime) {
+                var _eff = Note.Eff.Miss;
+                if(safeNum > 0) {
+                    _eff = Note.Eff.Safe;
+                    safeNum--;
+                }else{
+                    combo = 0;
+                    comboBonusText.gameObject.SetActive(false);
+                }
                 ++missNum;
-                combo = 0;
                 comboText.text = combo.ToString();
                 if (maxCombo < combo) {
                     maxCombo = combo;
                 }
-                note.NotesEff(Note.Eff.Miss, judgeLineObj[(int)_line].transform.position);
+                note.NotesEff(_eff, judgeLineObj[(int)_line].transform.position);
                 if (CURRENT_NOTES[note.notePos.lineNum] + 1 < LINE_NOTE_LIST[_line].Count) {
                     CURRENT_NOTES[note.notePos.lineNum]++;
                 } else {
@@ -705,6 +727,15 @@ public class MainManager : MonoBehaviour {
                     break;
             }
         }
+    }
+
+    private float ComboBonus(int _combo) {
+        int x = _combo / 100;
+        if(x != 0) {
+            comboBonusText.gameObject.SetActive(true);
+            comboBonusText.text = "× 1." + x.ToString(); 
+        }
+        return 1 + (x * 0.1f);
     }
 
     public Vector3 GetJudgeLinePositon(int _index) {

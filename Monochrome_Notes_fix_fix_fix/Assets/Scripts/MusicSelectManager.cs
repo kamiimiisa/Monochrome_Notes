@@ -7,7 +7,7 @@ using System;
 
 public class MusicSelectManager : MonoBehaviour {
 
-    [SerializeField] private Animator charactorAnimator;
+    [SerializeField] private Animator characterAnimator;
     [SerializeField] private Animator panelAnimator;
     [SerializeField] private Animator settingAnimator;
 
@@ -23,18 +23,18 @@ public class MusicSelectManager : MonoBehaviour {
     [SerializeField] private Image[] levelUI;
     [SerializeField] private Image[] SettingsUI;
 
-    string charactor__Num = "Charactor_Num";
-    string musicPanel = "Charactor→Music";
+    string character__Num = "Character_Num";
+    string musicPanel = "Character→Music";
     string setting = "Music→Settings";
 
     private enum ModeSelect {
-        Charactor,
+        Character,
         Music,
         Level,
         Settings,
     }
 
-    private ModeSelect currentMode = ModeSelect.Charactor;
+    private ModeSelect currentMode = ModeSelect.Character;
 
     private Slider notesSpeedSlider;
     private Slider ajustSlider;
@@ -52,7 +52,7 @@ public class MusicSelectManager : MonoBehaviour {
     private SettingSelect currentSetting = SettingSelect.MusicStart;
 
     private enum LevelSelect {
-        Esey,
+        Easy,
         Normal,
         Hard,
     }
@@ -87,21 +87,21 @@ public class MusicSelectManager : MonoBehaviour {
 
         switch (currentMode) {
             //キャラクター選択
-            case ModeSelect.Charactor:
+            case ModeSelect.Character:
                 //キャラクターを選択する処理
                 if (Button2.GetButtonDown("Button2_Horizontal")) {
                     if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
-                        charactorAnimator.SetInteger(charactor__Num, 0);
+                        characterAnimator.SetInteger(character__Num, 0);
                     }
                     if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
-                        charactorAnimator.SetInteger(charactor__Num, 1);
+                        characterAnimator.SetInteger(character__Num, 1);
                     }
                 }
 
                 //キャラクターを決定する処理
                 if (Input.GetButtonDown("Return")) {
                     //キャラクターと曲選択両方のboolをTrueにする
-                    charactorAnimator.SetBool(musicPanel, true);
+                    characterAnimator.SetBool(musicPanel, true);
                     panelAnimator.SetBool(musicPanel, true);
                     //曲選択へ進む
                     currentMode = ModeSelect.Music;
@@ -121,9 +121,9 @@ public class MusicSelectManager : MonoBehaviour {
                 //キャラクター選択に戻る
                 if (Input.GetButtonDown("Cancel")) {
                     //キャラクターと曲選択両方のboolをfalseにする
-                    charactorAnimator.SetBool(musicPanel, false);
+                    characterAnimator.SetBool(musicPanel, false);
                     panelAnimator.SetBool(musicPanel, false);
-                    currentMode = ModeSelect.Charactor;
+                    currentMode = ModeSelect.Character;
                     audioSource.time = sabiTIme[selecter];
                 }
 
@@ -168,21 +168,21 @@ public class MusicSelectManager : MonoBehaviour {
             case ModeSelect.Level:
                 if (Input.GetButtonDown("Cancel")) {
                     currentMode = ModeSelect.Music;
-                    charactorAnimator.SetBool(setting, false);
+                    characterAnimator.SetBool(setting, false);
                     panelAnimator.SetBool(setting, false);
                 }
 
                 switch (currentLevel) {
-                    case LevelSelect.Esey:
+                    case LevelSelect.Easy:
                         currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel,LevelSelect.Hard,LevelSelect.Normal);
                         GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     case LevelSelect.Normal:
-                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Esey, LevelSelect.Hard);
+                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Easy, LevelSelect.Hard);
                         GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     case LevelSelect.Hard:
-                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Normal, LevelSelect.Esey);
+                        currentLevel = GameMaster.HorizontalSelect<LevelSelect>(currentLevel, LevelSelect.Normal, LevelSelect.Easy);
                         GameMaster.SetColors(levelUI, (int)currentLevel);
                         break;
                     default:
@@ -193,7 +193,7 @@ public class MusicSelectManager : MonoBehaviour {
 
                 if (Input.GetButtonDown("Return")) {
                     //キャラクターと曲選択両方のboolをTrueにする
-                    charactorAnimator.SetBool(setting, true);
+                    characterAnimator.SetBool(setting, true);
                     panelAnimator.SetBool(setting, true);
                     settingAnimator.SetBool(setting, true);
                     currentMode = ModeSelect.Settings;
@@ -205,7 +205,7 @@ public class MusicSelectManager : MonoBehaviour {
                 //曲選択に戻る
                 if (Input.GetButtonDown("Cancel")) {
                     currentMode = ModeSelect.Music;
-                    charactorAnimator.SetBool(setting,false);
+                    characterAnimator.SetBool(setting,false);
                     panelAnimator.SetBool(setting, false);
                     settingAnimator.SetBool(setting, false);
                 }

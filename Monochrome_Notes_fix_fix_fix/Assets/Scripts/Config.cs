@@ -41,9 +41,30 @@
         Exit,
     }
 
+    public enum ResultStatus {
+        Retry,
+        MusicSelect,
+        Title,
+    }
+
     public enum PouseStatus {
         Retry,
         Resume,
         MusicSelect,
+    }
+
+    public enum Level {
+        Easy,
+        Normal,
+        Hard,
+    }
+
+    public enum ColorPatern {
+        Tap,Hold,ExTap
+    }
+
+    public enum ControlMode {
+        KeyBoard,
+        JoyStick,
     }
 }

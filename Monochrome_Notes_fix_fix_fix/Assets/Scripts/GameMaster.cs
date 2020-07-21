@@ -52,7 +52,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
 
     private static float noteSpeed = 10f;
     public static float NoteSpeed {
-        get { return noteSpeed ; }
+        get { return noteSpeed; }
         set { noteSpeed = value; }
     }
 
@@ -62,7 +62,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         set { ajust = value; }
     }
 
-    private static int musicVolume =10;
+    private static int musicVolume = 10;
     public static int MusicVolume {
         get { return musicVolume; }
         set { musicVolume = value; }
@@ -73,13 +73,23 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         get { return seVolume; }
         set { seVolume = value; }
     }
-    
+
     private static float deltaTime;
-    public static float DeltaTime{
+    public static float DeltaTime {
         get { return deltaTime; }
     }
 
+    private static Character character;
+    public static Character Character {
+        get { return character; }
+        set { character = value; }
+    }
 
+    private int currentJoysticKey = 0;
+    private static ControlMode controlMode = ControlMode.JoyStick;
+    public static ControlMode ControlMode {
+        get { return controlMode; }
+    }
 
     private TextAsset csvFile;
     private static List<string[]> csv = new List<string[]>();
@@ -94,9 +104,23 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         deltaTime = Time.deltaTime;
+
+
+        if (Input.anyKeyDown) {
+            currentJoysticKey = 0;
+            for (int i =  currentJoysticKey; i < 20; i++) {
+                if (Input.GetKeyDown("joystick 1 button " + i)) {
+                    controlMode = ControlMode.JoyStick;
+                    currentJoysticKey = i;
+                    break;
+                } 
+            }
+            if(!Input.GetKeyDown("joystick 1 button " + currentJoysticKey)) {
+                controlMode = ControlMode.KeyBoard;
+            }
+        } 
     }
 
     public void Awake()
@@ -145,7 +169,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
 
         if (Input.GetAxisRaw("Button2_Vartical") != 0) {
             interval += DeltaTime;
-            if (interval > 0.15f) {
+            if (interval > 0.3f) {
                 if (Input.GetAxisRaw("Button2_Vartical") > 0) {
                     e = _before;
                 }
@@ -174,11 +198,11 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
 
         if (Input.GetAxisRaw("Button2_Horizontal") != 0) {
             interval += DeltaTime;
-            if (interval > 0.15f) {
-                if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
+            if (interval > 0.3f) {
+                if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
                     e = _before;
                 }
-                if (Input.GetAxisRaw("Button2_Horizontal") < 0) {
+                if (Input.GetAxisRaw("Button2_Horizontal") > 0) {
                     e = _next;
                 }
                 interval = 0;
@@ -191,10 +215,52 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         return e;
     }
 
+    static ControlMode beforeMode = ControlMode;
+    public static void UiChangerConst(GameObject[] _keyboard, GameObject[] _joystick) {
+        switch (ControlMode) {
+            case ControlMode.KeyBoard:
+                foreach (var item in _keyboard) {
+                    item.SetActive(true);
+                }
+                foreach (var item in _joystick) {
+                    item.SetActive(false);
+                }
+                break;
+            case ControlMode.JoyStick:
+                foreach (var item in _joystick) {
+                    item.SetActive(true);
+                }
+                foreach (var item in _keyboard) {
+                    item.SetActive(false);
+                }
+                break;
+        }
+        beforeMode = ControlMode;
+    }
 
-
-
-
+    public static void UiChanger(GameObject[] _keyboard, GameObject[] _joystick) {
+        if (beforeMode != ControlMode) {
+            switch (ControlMode) {
+                case ControlMode.KeyBoard:
+                    foreach (var item in _keyboard) {
+                        item.SetActive(true);
+                    }
+                    foreach (var item in _joystick) {
+                        item.SetActive(false);
+                    }
+                    break;
+                case ControlMode.JoyStick:
+                    foreach (var item in _joystick) {
+                        item.SetActive(true);
+                    }
+                    foreach (var item in _keyboard) {
+                        item.SetActive(false);
+                    }
+                    break;
+            }
+            beforeMode = ControlMode;
+        }
+    }
 
 
     private void CSVReader() {
