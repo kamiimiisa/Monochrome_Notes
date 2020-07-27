@@ -109,8 +109,8 @@ public class MainManager : MonoBehaviour {
 
     [SerializeField] private List<AudioClip> bgmList;
     [SerializeField] private List<AudioClip> seList;
-    private AudioSource MusicSource;
-    [SerializeField] private AudioSource SESource;
+    private AudioSource musicSource;
+    [SerializeField] private AudioSource seSource;
 
     [SerializeField] private TextMesh musicNameTextMesh;
     //[SerializeField] private Text musicNameText;
@@ -165,8 +165,10 @@ public class MainManager : MonoBehaviour {
         musicNote = JsonUtility.FromJson<MusicDTO.Note>(json);
 
         //audioSource.clipにmusicNameと同じ名前のものを渡す
-        MusicSource = GetComponent<AudioSource>();
-        MusicSource.clip = bgmList.Find(bgm => bgm.name == musicName);
+        musicSource = GetComponent<AudioSource>();
+        musicSource.clip = bgmList.Find(bgm => bgm.name == musicName);
+        musicSource.volume = GameMaster.MusicVolume * 0.1f;
+        
 
         //判定ラインの座標を記憶する
         foreach (Line line in Enum.GetValues(typeof(Line))) {
@@ -174,15 +176,16 @@ public class MainManager : MonoBehaviour {
         }
 
         //曲名の反映
-        musicNameTextMesh.text = musicName;
-        resultMusicName.text = musicName;
+        musicNameTextMesh.text = musicLevel.ToString() + " : " + musicName;
+        resultMusicName.text = musicLevel.ToString() + " : " + musicName;
 
         //キャラクターの反映
         character = GameMaster.Character;
         resultCharacterImage.GetComponent<Image>().sprite = character.CharacterSprite;
         character.Skill();
-        
-        SESource.clip = seList[0];
+
+        seSource.volume = GameMaster.SEVolume * 0.1f;
+        seSource.clip = seList[0];
         DataFormat();
         Initialize();
     }
@@ -195,7 +198,7 @@ public class MainManager : MonoBehaviour {
         if (carrentGameTime < DELAY_TIME) {
             carrentGameTime += GameMaster.DeltaTime;
         } else if (!musicStart) {
-            MusicSource.Play();
+            musicSource.Play();
             musicStart = true;
         }
 
@@ -203,7 +206,7 @@ public class MainManager : MonoBehaviour {
         foreach (var notes in LINE_NOTE_LIST.Values) {
             foreach (var note in notes) {
                 var pos = note.transform.position;
-                pos.z = judgeLineObj[(int)note.notePos.lineNum].transform.position.z + (note.notePos.notesTimeg - MusicSource.time - carrentGameTime + DELAY_TIME) * noteSpeed;
+                pos.z = judgeLineObj[(int)note.notePos.lineNum].transform.position.z + (note.notePos.notesTimeg - musicSource.time - carrentGameTime + DELAY_TIME) * noteSpeed;
                 note.transform.position = pos;
             }
         }
@@ -212,22 +215,24 @@ public class MainManager : MonoBehaviour {
         JudgeNotesMiss();
         ComboTextUpdate();
 
-        if (MusicSource.time >= MusicSource.clip.length && !musicEnd) {
-            string resultT = "D";
-            float resultF = (float)(parfectNum + greatNum) / noteCount;
+        if (musicSource.time >= musicSource.clip.length && !musicEnd) {
+            string resultT = "C";
+            float resultF = (float)(parfectNum + greatNum * 0.7f) / noteCount;
             if (resultF <= 0.7f) {
-                resultT = "C";
-            } else if (resultF <= 0.85f) {
                 resultT = "B";
-            } else if (resultF <= 0.95f) {
+            } else if (resultF <= 0.85f) {
                 resultT = "A";
-            } else if (resultF <= 0.98f) {
+            } else if (resultF <= 0.90f) {
                 resultT = "S";
-            } else if (resultF < 1) {
+            } else if (resultF <= 0.95f) {
                 resultT = "SS";
-            } else if (resultF == 1) {
+            } else if (resultF < 1) {
                 resultT = "SSS";
-                fullComboText.text = "ALL Parfect !!";
+            } else if (resultF == 1) {
+                resultT = "<color=#ff0000>A</color><color=#ff8000>l</color><color=#ffff00>l</color>_<color=#009944>C</color><color=#0068B7>o</color><color=#1D2088>l</color><color=#1D2088>o</color><color=#ff0000>r</color><color=#ff8000>s</color>_<color=#ffff00>!</color><color=#009944>!</color>";
+                testResult.color = new Color(0, 0, 0, 0);
+                fullComboText.text = "<color=#ff0000>A</color><color=#ff8000>l</color><color=#ffff00>l</color>_<color=#009944>C</color><color=#0068B7>o</color><color=#1D2088>l</color><color=#1D2088>o</color><color=#ff0000>r</color><color=#ff8000>s</color>_<color=#ffff00>!</color><color=#009944>!</color>";
+                fullComboText.color = new Color(0, 0, 0, 0);
             }
             testResult.text = resultT;
             scoreResultText.text = score.ToString();
@@ -274,33 +279,33 @@ public class MainManager : MonoBehaviour {
         } else {
             if (canPlay) {
                 if (Input.GetButtonDown("Button1")) {
-                    SESource.Play();
+                    seSource.Play();
                     JudgeNotes(Line.Line1);
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button2") || Button2_Horizontal.GetButtonDown("Button2_Horizontal") || Button2_Vartical.GetButtonDown("Button2_Vartical")) {
-                    SESource.Play();
+                    seSource.Play();
                     JudgeNotes(Line.Line2);
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button3")) {
-                    SESource.Play();
+                    seSource.Play();
                     JudgeNotes(Line.Line3);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line7);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button4")) {
-                    SESource.Play();
+                    seSource.Play();
                     JudgeNotes(Line.Line4);
                     JudgeNotes(Line.Line7);
                     JudgeNotes(Line.Line8);
                 }
                 if (Input.GetButtonDown("Button5")) {
-                    SESource.Play();
+                    seSource.Play();
                     JudgeNotes(Line.Line5);
                     JudgeNotes(Line.Line6);
                     JudgeNotes(Line.Line7);
@@ -339,7 +344,7 @@ public class MainManager : MonoBehaviour {
     }
 
     private void DataFormat() {
-        float offset = (float)editData.offset / (float)MusicSource.clip.frequency;
+        float offset = (float)editData.offset / (float)musicSource.clip.frequency;
         float timingAdjust = (float)GameMaster.Ajust / 100;
         //Jsonから受け取ったデータを使いやすいように変換する処理
         foreach (var _note in musicNote.notes) {
@@ -356,7 +361,7 @@ public class MainManager : MonoBehaviour {
                 List<Note> _noteList = new List<Note>();
                 var _beforeNotes = _note;
                 foreach (var _hold in _note.notes) {
-                    for (int _num = _beforeNotes.num + 2; _num < _hold.num; _num += 2) {
+                    for (int _num = _beforeNotes.num + 4; _num < _hold.num; _num += 4) {
                         Note _holdNotes = new Note();
                         _holdNotes.Initialize(new Note.NotePos(_notesTiming(_num), _hold.block, NoteType.Hold));
                         _beforeNotes = _hold;
@@ -488,7 +493,7 @@ public class MainManager : MonoBehaviour {
     void JudgeNotes(Line _line) {
         //空打ち処理
         //曲が始まるまでの空打ち
-        if (carrentGameTime < DELAY_TIME - JUDGE_RANGE[Judge.Miss]) {
+        if (carrentGameTime < DELAY_TIME - JUDGE_RANGE[Judge.Graet]) {
             return;
         }
 
@@ -499,13 +504,13 @@ public class MainManager : MonoBehaviour {
 
         //ノーツまで距離(時間)があるときの空打ち
         var note = LINE_NOTE_LIST[_line][CURRENT_NOTES[_line]];
-        float diff = Mathf.Abs(MusicSource.time - note.notePos.notesTimeg);
-        if (diff > JUDGE_RANGE[Judge.Miss]) {
+        float diff = Mathf.Abs(musicSource.time - note.notePos.notesTimeg);
+        if (diff > JUDGE_RANGE[Judge.Graet]) {
             return;
         }        
 
-        var judge = Judge.Miss;
-        var judgeEff = Note.Eff.Miss;
+        var judge = Judge.Graet;
+        var judgeEff = Note.Eff.Great;
 
         switch (note.notePos.noteType) {
             case NoteType.Touch:
@@ -521,12 +526,12 @@ public class MainManager : MonoBehaviour {
                 } 
                 break;
             case NoteType.HoldStart:
-                if (diff < JUDGE_RANGE[Judge.HoldStart]) {
-                    judge = Judge.HoldStart;
-                    judgeEff = Note.Eff.Pafect;
-                    ++parfectNum;
-                }
-                break;
+                //if (diff < JUDGE_RANGE[Judge.HoldStart]) {
+                //    judge = Judge.HoldStart;
+                //    judgeEff = Note.Eff.Pafect;
+                //    ++parfectNum;
+                //}
+                //break;
             case NoteType.Hold:
             case NoteType.HoldEnd:
                 return;
@@ -541,22 +546,22 @@ public class MainManager : MonoBehaviour {
                 break;
         }
 
-        if (judge == Judge.Miss) {
-            ++missNum;
-            if (safeNum > 0) {
-                judgeEff = Note.Eff.Safe;
-            }
-        }
+        //if (judge == Judge.Miss) {
+        //    ++missNum;
+        //    if (safeNum > 0) {
+        //        judgeEff = Note.Eff.Safe;
+        //    }
+        //}
         
         score += JUDGE_SCORE[judge] * ComboBonus(combo);
         scoreText.text = "Score : " + ((int)score).ToString("D7");
         tapEffects[(int)_line].SetEffectData(JUDGE_COLOR[judge], 250);
         note.NotesEff(judgeEff, judgeLineObj[(int)_line].transform.position);
-        
+
         if (judge != Judge.Miss) {
             ++combo;
         } else {
-            if(safeNum > 0) {
+            if (safeNum > 0) {
                 safeNum--;
             } else {
                 combo = 0;
@@ -567,6 +572,7 @@ public class MainManager : MonoBehaviour {
         if (maxCombo < combo) {
             maxCombo = combo;
         }
+
         if (CURRENT_NOTES[_line] + 1 < LINE_NOTE_LIST[_line].Count) {
             CURRENT_NOTES[_line]++;
         } else {
@@ -585,21 +591,21 @@ public class MainManager : MonoBehaviour {
         }
 
         var _note = LINE_NOTE_LIST[_line][CURRENT_NOTES[_line]];
-        float diff = Mathf.Abs(MusicSource.time - _note.notePos.notesTimeg);
+        float diff = Mathf.Abs(musicSource.time - _note.notePos.notesTimeg);
         if (diff > JUDGE_RANGE[Judge.Hold]) {
             return;
         }
 
         //TouchとHoldStartとBreak以外なら処理しない
-        if (_note.notePos.noteType == NoteType.Touch || _note.notePos.noteType == NoteType.HoldStart || _note.notePos.noteType == NoteType.ExTap) {
+        if (_note.notePos.noteType == NoteType.Touch ||_note.notePos.noteType == NoteType.ExTap) {
             return;
         }
 
         Judge judge = Judge.Hold;
-        if (_note.notePos.noteType == NoteType.Hold || _note.notePos.noteType == NoteType.HoldEnd) {
+        if (_note.notePos.noteType == NoteType.Hold || _note.notePos.noteType == NoteType.HoldStart || _note.notePos.noteType == NoteType.HoldEnd) {
             if (diff < JUDGE_RANGE[Judge.Hold]) {
-                if (_note.notePos.noteType == NoteType.HoldEnd) {
-                    SESource.Play();
+                if (_note.notePos.noteType == NoteType.HoldStart || _note.notePos.noteType == NoteType.HoldEnd ) {
+                    seSource.Play();
                     judge = Judge.HoldEnd;
                 }
                 ++parfectNum;
@@ -634,7 +640,7 @@ public class MainManager : MonoBehaviour {
             }
 
             var note = LINE_NOTE_LIST[_line][CURRENT_NOTES[_line]];
-            float diff = MusicSource.time - note.notePos.notesTimeg;
+            float diff = musicSource.time - note.notePos.notesTimeg;
             float missTime = JUDGE_RANGE[Judge.Miss];
             if (note.notePos.noteType == NoteType.Hold) {
                 missTime = JUDGE_RANGE[Judge.Hold];
@@ -691,9 +697,9 @@ public class MainManager : MonoBehaviour {
 
     //中断処理
     private void Pouse() {
-        if (MusicSource.pitch == 1 && MusicSource.time < MusicSource.clip.length && !musicEnd) {
+        if (musicSource.pitch == 1 && musicSource.time < musicSource.clip.length && !musicEnd) {
             if (Input.GetButtonDown("Pouse")) {
-                MusicSource.pitch = 0;
+                musicSource.pitch = 0;
                 PouseCanvas.SetActive(true);
                 canPlay = false;
             }
@@ -712,7 +718,7 @@ public class MainManager : MonoBehaviour {
                     currentPouseStatus = GameMaster.HorizontalSelect<PouseStatus>(currentPouseStatus, PouseStatus.Retry, PouseStatus.MusicSelect);
                     if (Input.GetButtonDown("Return")) {
                         PouseCanvas.SetActive(false);
-                        MusicSource.pitch = 1;
+                        musicSource.pitch = 1;
                         canPlay = true;
                     }
                     break;

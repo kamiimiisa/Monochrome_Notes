@@ -54,9 +54,9 @@
     }
 
     public enum Level {
-        Easy,
-        Normal,
-        Hard,
+        EASY,
+        NORMAL,
+        HARD,
     }
 
     public enum ColorPatern {

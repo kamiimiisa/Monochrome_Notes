@@ -31,13 +31,13 @@ public class MusicState : MonoBehaviour{
     public int GetLevelNum(Level _level) {
         int _num = 0;
         switch (_level) {
-            case Level.Easy:
+            case Level.EASY:
                 _num = levelEsey;
                 break;
-            case Level.Normal:
+            case Level.NORMAL:
                 _num = levelNomal;
                 break;
-            case Level.Hard:
+            case Level.HARD:
                 _num = levelHard;
                 break;
             default:

@@ -62,13 +62,13 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster> {
         set { ajust = value; }
     }
 
-    private static int musicVolume = 10;
+    private static int musicVolume = 5;
     public static int MusicVolume {
         get { return musicVolume; }
         set { musicVolume = value; }
     }
 
-    private static int seVolume = 10;
+    private static int seVolume = 5;
     public static int SEVolume {
         get { return seVolume; }
         set { seVolume = value; }

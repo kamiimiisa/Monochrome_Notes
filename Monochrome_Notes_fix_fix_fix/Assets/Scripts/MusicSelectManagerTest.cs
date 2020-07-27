@@ -17,6 +17,8 @@ public class MusicSelectManagerTest : MonoBehaviour {
     [SerializeField] private Text[] musicName;
     [SerializeField] private Text[] levelNum;
     [SerializeField] private Text[] levelText;
+    [SerializeField] private GameObject levelUI_Obj;
+    [SerializeField] private GameObject characterUI_Obj;
     [SerializeField] private GameObject[] character_A_select;
     [SerializeField] private GameObject[] character_B_select;
     [SerializeField] private GameObject rootMusicSelect;
@@ -63,11 +65,11 @@ public class MusicSelectManagerTest : MonoBehaviour {
     private float settingInterval = 0;
     private Dictionary<Level, Color> LevelColor = new Dictionary<Level, Color>
     {
-        {Level.Easy,Color.blue },
-        {Level.Normal,Color.yellow },
-        {Level.Hard,Color.red },
+        {Level.EASY,Color.blue },
+        {Level.NORMAL,Color.yellow },
+        {Level.HARD,Color.red },
     };
-    private static Level currentLevel = Level.Normal;
+    private static Level currentLevel = Level.NORMAL;
     private float animationInterval = 0f;
     private const float MAX_ANIMATION_INTERVAL = 0.3f;
 
@@ -124,6 +126,11 @@ public class MusicSelectManagerTest : MonoBehaviour {
         //シーン読み込み時のみ設定のカーソルを初期化する
         currentSetting = SettingSelect.NotesSpeed;
 
+        //ゴリラ　UIの初期化
+        levelUI_Obj.SetActive(true);
+        characterUI_Obj.SetActive(false);
+
+        //難易度に合わせた背景色の変更の初期化
         foreach (var _bg in jacketsBackGround) {
             _bg.color = LevelColor[currentLevel];
         }
@@ -174,6 +181,8 @@ public class MusicSelectManagerTest : MonoBehaviour {
                     levelText[(int)currentMode].text = currentLevel.ToString();
                     rootCharacterSelect.SetActive(true);
                     rootMusicSelect.SetActive(false);
+                    levelUI_Obj.SetActive(false);
+                    characterUI_Obj.SetActive(true);
                 }
 
                 if (Input.GetButtonDown("Cancel")) {
@@ -191,12 +200,16 @@ public class MusicSelectManagerTest : MonoBehaviour {
                 if (Input.GetButtonDown("Return")) {
                     currentMode = ModeSelect.Confrim;
                     conflmWindow.SetActive(true);
+                    levelUI_Obj.SetActive(false);
+                    characterUI_Obj.SetActive(false);
                 }
                 if (Input.GetButtonDown("Cancel")) {
                     currentMode = ModeSelect.Music;
                     selectText.text = "MusicSelect";
                     rootCharacterSelect.SetActive(false);
                     rootMusicSelect.SetActive(true);
+                    levelUI_Obj.SetActive(true);
+                    characterUI_Obj.SetActive(false);
                 }
 
                 if (Input.GetButtonDown("Pouse")) {
@@ -223,6 +236,8 @@ public class MusicSelectManagerTest : MonoBehaviour {
                 if (Input.GetButtonDown("Cancel")) {
                     currentMode = ModeSelect.Character;
                     conflmWindow.SetActive(false);
+                    levelUI_Obj.SetActive(false);
+                    characterUI_Obj.SetActive(true);
                 }
                 break;
             case ModeSelect.Settings:
@@ -330,33 +345,33 @@ public class MusicSelectManagerTest : MonoBehaviour {
 
     private void LevelChange(Direction _directhon) {
         switch (currentLevel) {
-            case Level.Easy:
+            case Level.EASY:
                 switch (_directhon) {
                     case Direction.Left:
-                        currentLevel = Level.Easy;
+                        currentLevel = Level.EASY;
                         break;
                     case Direction.Right:
-                        currentLevel = Level.Normal;
+                        currentLevel = Level.NORMAL;
                         break;
                 }
                 break;
-            case Level.Normal:
+            case Level.NORMAL:
                 switch (_directhon) {
                     case Direction.Left:
-                        currentLevel = Level.Easy;
+                        currentLevel = Level.EASY;
                         break;
                     case Direction.Right:
-                        currentLevel = Level.Hard;
+                        currentLevel = Level.HARD;
                         break;
                 }
                 break;
-            case Level.Hard:
+            case Level.HARD:
                 switch (_directhon) {
                     case Direction.Left:
-                        currentLevel = Level.Normal;
+                        currentLevel = Level.NORMAL;
                         break;
                     case Direction.Right:
-                        currentLevel = Level.Hard;
+                        currentLevel = Level.HARD;
                         break;
                 }
                 break;
