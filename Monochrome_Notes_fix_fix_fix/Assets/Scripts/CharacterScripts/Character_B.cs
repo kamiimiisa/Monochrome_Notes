@@ -11,8 +11,8 @@ public class Character_B : Character {
         {Judge.Graet, 0f},
         {Judge.Miss, 0.2f},
         {Judge.HoldStart,0.1f},
-        {Judge.Hold,0.075f},
-        {Judge.ExTap,0.2f},
+        {Judge.Hold,0.1f},
+        {Judge.ExTap,0.1f},
     };
 
     private static Dictionary<Judge, int> JUDGE_SCORE = new Dictionary<Judge, int>()

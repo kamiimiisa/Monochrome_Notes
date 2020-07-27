@@ -142,10 +142,10 @@ public class MusicSelectManagerTest : MonoBehaviour {
         switch (currentMode) {
             case ModeSelect.Music:
                 //L1R1(おまけでL2R2)で曲の難易度を変更する
-                if (Input.GetButtonDown("Button1")) {
+                if (Input.GetButtonDown("Button1") || Input.GetButtonDown("Button1_sub")) {
                     LevelChange(Direction.Left);
                 }
-                if (Input.GetButtonDown("Button4")) {
+                if (Input.GetButtonDown("Button4") || Input.GetButtonDown("Button4_sub")) {
                     LevelChange(Direction.Right);
                 }
 
